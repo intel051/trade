@@ -1,0 +1,464 @@
+import React, { useState, useEffect } from 'react';
+import { Upload, TrendingUp, ChevronDown, CheckCircle, Calculator, Info, Settings, RefreshCw } from 'lucide-react';
+
+const STRATEGIES = {
+  ES: {
+    id: 'ES',
+    name: 'S&P 500 선물',
+    symbol: 'ES',
+    rsiBuy: 35,
+    rsiSell: 65,
+    tpPercent: 0.002,   // 0.2%
+    slPercent: 0.0015,  // 0.15%
+    leverage: 7.5,
+    desc: '정석 플레이. 1시간봉 추세 추종 + 15분봉 눌림목.',
+    tip: 'RSI 30-35 구간이 꿀통! 욕심내지 말고 0.2% 먹튀.',
+    color: 'blue'
+  },
+  NQ: {
+    id: 'NQ',
+    name: '나스닥 100 선물',
+    symbol: 'NQ',
+    rsiBuy: 25,         // 변동성 커서 더 낮게
+    rsiSell: 75,
+    tpPercent: 0.003,   // 0.3% (변동성 반영)
+    slPercent: 0.0025,  // 0.25% (너무 좁으면 털림)
+    leverage: 7.5,
+    desc: '야수의 심장. 변동성이 크므로 더 깊은 눌림을 기다려야 함.',
+    tip: 'RSI 25 찍을 때까지 참으세요. 익절은 화끈하게 0.3%!',
+    color: 'violet'
+  },
+  GC: {
+    id: 'GC',
+    name: '골드 선물',
+    symbol: 'GC',
+    rsiBuy: 25,
+    rsiSell: 75,
+    tpPercent: 0.0025,
+    slPercent: 0.002,
+    leverage: 7.5,
+    desc: '속임수(휩소) 주의. 꼬리 달리는 것 보고 진입.',
+    tip: '볼린저 밴드 찢고 내려가도 바로 잡지 마세요. 양봉 확인 필수!',
+    color: 'amber'
+  },
+  6E: {
+    id: '6E',
+    name: '유로 FX 선물',
+    symbol: '6E',
+    rsiBuy: 30,
+    rsiSell: 70,
+    tpPercent: 0.002,
+    slPercent: 0.0015,
+    leverage: 7.5,
+    desc: '모범생 차트. 지지와 저항을 정직하게 지키는 편.',
+    tip: 'S&P500이랑 비슷하게 하되, 움직임이 좀 느릴 수 있어요.',
+    color: 'indigo'
+  }
+};
+
+const TradingDashboard = () => {
+  const [activeTicker, setActiveTicker] = useState('ES');
+  const config = STRATEGIES[activeTicker];
+
+  const [image, setImage] = useState(null);
+  const [currentPrice, setCurrentPrice] = useState('');
+  
+  // Strategy States
+  const [h1Trend, setH1Trend] = useState('unknown'); 
+  const [rsiValue, setRsiValue] = useState('');
+  const [bandPosition, setBandPosition] = useState('middle'); 
+
+  // Results
+  const [verdict, setVerdict] = useState(null);
+  const [targets, setTargets] = useState(null);
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const analyzeStrategy = () => {
+    let score = 0;
+    let reasons = [];
+    let status = 'WAIT'; 
+
+    // 1. H1 Trend Check
+    if (h1Trend === 'bullish') {
+      score += 30;
+      reasons.push("✅ 1시간봉 상승 추세 (EMA 200 위)");
+    } else if (h1Trend === 'bearish') {
+      score -= 50;
+      reasons.push("⚠️ 1시간봉 하락 추세 (진입 위험)");
+    }
+
+    // 2. RSI Check (Dynamic based on ticker)
+    const rsi = parseFloat(rsiValue);
+    if (!isNaN(rsi)) {
+      if (rsi <= config.rsiBuy) {
+        score += 40;
+        reasons.push(`✅ RSI 과매도 (${rsi}) - ${activeTicker} 기준 ${config.rsiBuy} 이하 만족`);
+      } else if (rsi >= config.rsiSell) {
+        score -= 20;
+        reasons.push(`⚠️ RSI 과매수 (${rsi}) - 고점 위험`);
+      } else {
+        reasons.push(`ℹ️ RSI 중립 (${rsi}) - 기준: ${config.rsiBuy} 이하 진입`);
+      }
+    }
+
+    // 3. Bollinger Band Check
+    if (bandPosition === 'lower') {
+      score += 30;
+      reasons.push("✅ 볼린저 밴드 하단 터치 (지지 예상)");
+    } else if (bandPosition === 'upper') {
+      score -= 30;
+      reasons.push("⚠️ 볼린저 밴드 상단 터치 (저항 예상)");
+    }
+
+    // Verdict Logic
+    if (h1Trend === 'bearish') {
+      status = 'NO_ENTRY';
+    } else if (score >= 80) {
+      status = 'STRONG_BUY';
+    } else if (score >= 50) {
+      status = 'BUY';
+    } else {
+      status = 'WAIT';
+    }
+
+    setVerdict({ status, score, reasons });
+  };
+
+  useEffect(() => {
+    if (currentPrice) {
+      const price = parseFloat(currentPrice);
+      if (!isNaN(price)) {
+        const takeProfit = price * (1 + config.tpPercent);
+        const stopLoss = price * (1 - config.slPercent);
+        const leverageReturn = (config.tpPercent * 100 * config.leverage).toFixed(2);
+        
+        setTargets({
+          tp: takeProfit.toFixed(2),
+          sl: stopLoss.toFixed(2),
+          roe: leverageReturn,
+          tpPercent: (config.tpPercent * 100).toFixed(2),
+          slPercent: (config.slPercent * 100).toFixed(2)
+        });
+      }
+    }
+  }, [currentPrice, activeTicker]);
+
+  // Reset analysis when ticker changes
+  useEffect(() => {
+    setVerdict(null);
+    setRsiValue('');
+    setH1Trend('unknown');
+    setBandPosition('middle');
+  }, [activeTicker]);
+
+  return (
+    <>
+      <style>{`
+        @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+        :root {
+          font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+        }
+        .font-sans {
+          font-family: "Pretendard", sans-serif !important;
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(5px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+      
+      <div className="min-h-screen bg-slate-50 text-slate-800 p-4 font-sans pb-20">
+        <div className="max-w-4xl mx-auto space-y-6">
+          
+          {/* Header & Ticker Selector */}
+          <header className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                  <TrendingUp className={`text-${config.color}-600`} />
+                  선물 트레이딩 대시보드
+                </h1>
+                <p className="text-slate-500 text-sm mt-1">7.5배 레버리지 / 종목별 맞춤 스캘핑 전략</p>
+              </div>
+              
+              {/* Ticker Dropdown */}
+              <div className="relative group w-full md:w-auto">
+                <select 
+                  value={activeTicker}
+                  onChange={(e) => setActiveTicker(e.target.value)}
+                  className="appearance-none w-full md:w-64 bg-slate-50 border border-slate-200 text-slate-800 py-3 pl-4 pr-10 rounded-xl font-bold text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer hover:bg-slate-100 transition-colors"
+                >
+                  {Object.values(STRATEGIES).map((s) => (
+                    <option key={s.id} value={s.id}>{s.symbol} - {s.name}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={20} />
+              </div>
+            </div>
+
+            {/* Strategy Info Card */}
+            <div className={`mt-6 p-4 rounded-2xl bg-${config.color}-50 border border-${config.color}-100 flex items-start gap-3`}>
+              <Info className={`text-${config.color}-600 flex-shrink-0 mt-0.5`} size={18} />
+              <div>
+                <h3 className={`font-bold text-${config.color}-800 text-sm mb-1`}>{config.name} 전략 핵심</h3>
+                <p className={`text-${config.color}-700 text-sm`}>{config.desc}</p>
+                <p className={`text-${config.color}-600 text-xs mt-1 opacity-80`}>💡 Tip: {config.tip}</p>
+              </div>
+            </div>
+          </header>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {/* Left Column: Inputs & Analysis */}
+            <div className="lg:col-span-2 space-y-6">
+              
+              {/* Analysis Inputs */}
+              <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="font-bold text-lg flex items-center gap-2">
+                    <CheckCircle size={20} className="text-slate-400" />
+                    진입 체크리스트
+                  </h2>
+                  <button onClick={() => {setH1Trend('unknown'); setRsiValue(''); setBandPosition('middle'); setVerdict(null);}} className="text-slate-400 hover:text-slate-600 transition-colors">
+                    <RefreshCw size={18} />
+                  </button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  
+                  {/* 1. Trend */}
+                  <div className="space-y-2 col-span-1 md:col-span-2">
+                    <label className="text-sm font-semibold text-slate-600 block">1. 1시간봉 추세 (EMA 200)</label>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => setH1Trend('bullish')}
+                        className={`flex-1 py-4 px-2 rounded-xl text-sm font-bold border transition-all flex items-center justify-center gap-2 ${h1Trend === 'bullish' ? 'bg-red-50 border-red-200 text-red-600 ring-2 ring-red-100' : 'bg-white border-slate-200 text-slate-400 hover:bg-slate-50'}`}
+                      >
+                        <TrendingUp size={16} /> 상승장 (매수 OK)
+                      </button>
+                      <button 
+                        onClick={() => setH1Trend('bearish')}
+                        className={`flex-1 py-4 px-2 rounded-xl text-sm font-bold border transition-all flex items-center justify-center gap-2 ${h1Trend === 'bearish' ? 'bg-blue-50 border-blue-200 text-blue-600 ring-2 ring-blue-100' : 'bg-white border-slate-200 text-slate-400 hover:bg-slate-50'}`}
+                      >
+                        <TrendingDown size={16} /> 하락장 (진입 금지)
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 2. RSI */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-600 flex justify-between">
+                      <span>2. 15분봉 RSI (14)</span>
+                      <span className="text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-xs">기준: {config.rsiBuy} 이하</span>
+                    </label>
+                    <div className="relative">
+                      <input 
+                        type="number" 
+                        value={rsiValue}
+                        onChange={(e) => setRsiValue(e.target.value)}
+                        placeholder={`${config.rsiBuy} 이하 진입 추천`}
+                        className="w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium transition-shadow"
+                      />
+                      <div className="absolute right-4 top-4 text-xs font-bold">
+                        {rsiValue && rsiValue <= config.rsiBuy ? <span className="text-emerald-500">🟢 좋음</span> : rsiValue && rsiValue >= config.rsiSell ? <span className="text-rose-500">🔴 위험</span> : ''}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. Bollinger Band */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-600 block">3. 15분봉 볼린저 밴드</label>
+                    <select 
+                      value={bandPosition}
+                      onChange={(e) => setBandPosition(e.target.value)}
+                      className="w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-medium"
+                    >
+                      <option value="middle">밴드 안쪽 (관망)</option>
+                      <option value="lower">밴드 하단 터치 (매수 기회)</option>
+                      <option value="upper">밴드 상단 터치 (매도 기회)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={analyzeStrategy}
+                  disabled={!h1Trend || !rsiValue}
+                  className={`w-full py-4 text-white font-bold rounded-2xl transition-all shadow-lg shadow-blue-200 flex justify-center items-center gap-2 ${!h1Trend || !rsiValue ? 'bg-slate-300 cursor-not-allowed shadow-none' : 'bg-blue-600 hover:bg-blue-700 hover:scale-[1.02]'}`}
+                >
+                  <Settings size={18} />
+                  AI 전략 분석 실행
+                </button>
+
+                {/* Analysis Result */}
+                {verdict && (
+                  <div className="mt-6 p-6 bg-slate-50 rounded-2xl border border-slate-200 animate-fade-in">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-bold text-slate-800 text-lg">분석 결과</h3>
+                      <span className={`px-4 py-2 rounded-xl text-sm font-bold shadow-sm ${
+                        verdict.status === 'STRONG_BUY' ? 'bg-red-500 text-white' :
+                        verdict.status === 'BUY' ? 'bg-orange-500 text-white' :
+                        verdict.status === 'NO_ENTRY' ? 'bg-slate-600 text-white' :
+                        'bg-yellow-400 text-white'
+                      }`}>
+                        {verdict.status === 'STRONG_BUY' ? '🔥 강력 매수' :
+                        verdict.status === 'BUY' ? '✨ 매수 적합' :
+                        verdict.status === 'NO_ENTRY' ? '✋ 절대 진입 금지' : '⏳ 관망 필요'}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-3 bg-white p-4 rounded-xl border border-slate-100">
+                      {verdict.reasons.map((reason, idx) => (
+                        <div key={idx} className="text-sm text-slate-600 flex items-start gap-2 font-medium">
+                          <CheckCircle size={16} className={`mt-0.5 flex-shrink-0 ${reason.includes('✅') ? 'text-emerald-500' : reason.includes('⚠️') ? 'text-rose-500' : 'text-slate-400'}`} />
+                          {reason.replace(/✅|⚠️|ℹ️/g, '')}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Image Upload Section (Collapsed version) */}
+              <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                 <h2 className="font-bold text-lg mb-4 flex items-center gap-2">
+                  <Upload size={20} className="text-slate-400" />
+                  차트 메모 (선택)
+                </h2>
+                {!image ? (
+                  <label className="flex items-center justify-center w-full h-24 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                    <span className="text-slate-400 text-sm flex items-center gap-2"><Upload size={16}/> 차트 캡처 업로드</span>
+                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                  </label>
+                ) : (
+                  <div className="relative rounded-xl overflow-hidden border border-slate-100">
+                    <img src={image} alt="Chart" className="w-full" />
+                    <button onClick={() => setImage(null)} className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full text-xs">삭제</button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right Column: Calculator & Cheatsheet */}
+            <div className="lg:col-span-1 space-y-6">
+              
+              {/* Profit Calculator */}
+              <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 sticky top-6 z-10">
+                <div className="flex items-center gap-2 mb-6">
+                  <div className={`p-2 rounded-lg bg-${config.color}-100 text-${config.color}-600`}>
+                    <Calculator size={20} />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-lg text-slate-800">목표가 계산기</h2>
+                    <p className="text-xs text-slate-400">{config.symbol} 맞춤형 세팅</p>
+                  </div>
+                </div>
+                
+                <div className="mb-6">
+                  <label className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-2 block">현재 진입가</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+                    <input 
+                      type="number" 
+                      value={currentPrice}
+                      onChange={(e) => setCurrentPrice(e.target.value)}
+                      placeholder="지수 입력"
+                      className="w-full pl-8 p-4 border border-slate-200 rounded-xl font-mono text-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50"
+                    />
+                  </div>
+                </div>
+
+                {targets ? (
+                  <div className="space-y-4 animate-fade-in">
+                    <div className="p-5 bg-emerald-50 rounded-2xl border border-emerald-100 relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                         <TrendingUp size={48} className="text-emerald-600" />
+                      </div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-xs font-bold text-emerald-600 uppercase tracking-wide">익절 목표 (TP)</span>
+                        <span className="bg-white/60 px-2 py-0.5 rounded text-[10px] font-bold text-emerald-600">+{targets.tpPercent}%</span>
+                      </div>
+                      <div className="text-3xl font-bold text-emerald-700 font-mono tracking-tight">
+                        ${targets.tp}
+                      </div>
+                      <div className="text-xs text-emerald-600 mt-2 font-medium">
+                        예상 수익률: <span className="bg-emerald-200/50 px-1 rounded text-emerald-800">+{targets.roe}%</span> (7.5배)
+                      </div>
+                    </div>
+
+                    <div className="p-5 bg-rose-50 rounded-2xl border border-rose-100 relative overflow-hidden">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-xs font-bold text-rose-600 uppercase tracking-wide">손절 라인 (SL)</span>
+                        <span className="bg-white/60 px-2 py-0.5 rounded text-[10px] font-bold text-rose-600">-{targets.slPercent}%</span>
+                      </div>
+                      <div className="text-3xl font-bold text-rose-700 font-mono tracking-tight">
+                        ${targets.sl}
+                      </div>
+                      <div className="text-xs text-rose-500 mt-2 font-medium">
+                        이 가격 오면 미련 없이 던지기!
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-10 text-slate-400 text-sm bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                    가격을 입력하면<br/>
+                    <span className="font-bold text-slate-500">{config.name}</span> 기준<br/>
+                    목표가를 계산해드려요.
+                  </div>
+                )}
+              </div>
+
+              {/* Cheat Sheet */}
+              <div className="bg-slate-800 text-slate-300 p-6 rounded-3xl shadow-lg">
+                <h3 className="font-bold text-white mb-4 flex items-center gap-2 text-lg">
+                  <Info size={18} className="text-yellow-400" />
+                  {config.name} 원칙
+                </h3>
+                <ul className="space-y-4 text-sm">
+                  <li className="flex gap-3 items-start">
+                    <span className="bg-slate-700 text-white w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold flex-shrink-0 mt-0.5">1</span>
+                    <span><strong className="text-white">EMA 200 위</strong>에서만 매수. (상승 추세 필수)</span>
+                  </li>
+                  <li className="flex gap-3 items-start">
+                    <span className="bg-slate-700 text-white w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold flex-shrink-0 mt-0.5">2</span>
+                    <span>
+                      RSI <strong className="text-emerald-400">{config.rsiBuy} 이하</strong> + 볼린저 밴드 하단 터치 시 진입.
+                    </span>
+                  </li>
+                  <li className="flex gap-3 items-start">
+                    <span className="bg-slate-700 text-white w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold flex-shrink-0 mt-0.5">3</span>
+                    <span>
+                       목표가 <strong>{config.tpPercent * 100}%</strong> 도달 시 기계적 익절.
+                    </span>
+                  </li>
+                  <li className="flex gap-3 items-start">
+                    <span className="bg-rose-500 text-white w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold flex-shrink-0 mt-0.5">!</span>
+                    <span>
+                       손절 <strong>-{config.slPercent * 100}%</strong>. {activeTicker === 'NQ' || activeTicker === 'GC' ? '변동성 주의!' : '칼같이 지키기!'}
+                    </span>
+                  </li>
+                </ul>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default TradingDashboard;
+
