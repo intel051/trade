@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S&P 500 트레이딩 대시보드</title>
+    <title>마스터 트레이딩 대시보드 (Lite)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <style>
@@ -12,8 +12,12 @@
             background-color: #f8fafc;
             -webkit-tap-highlight-color: transparent;
         }
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+            font-family: "Pretendard", sans-serif; 
+        }
         .btn-select { transition: all 0.2s; }
-        .btn-select.active { ring-width: 2px; }
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -27,453 +31,423 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
-                        <!-- Icon: Trending Up -->
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                        <span id="header-title">선물 트레이딩</span>
+                        <span id="app-icon" class="text-2xl">💎</span>
+                        <span id="header-title">선물 마스터 대시보드</span>
                     </h1>
-                    <p class="text-slate-500 text-sm mt-1">7.5배 레버리지 / 스캘핑 대시보드</p>
+                    <p class="text-slate-500 text-sm mt-1">5대 선물 종목 완전 정복</p>
                 </div>
-                <div class="relative w-full md:w-auto">
-                    <select id="ticker-select" class="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-800 py-3 pl-4 pr-10 rounded-xl font-bold text-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="ES">ES - S&P 500 선물</option>
-                        <option value="NQ">NQ - 나스닥 100 선물</option>
-                        <option value="GC">GC - 골드 선물</option>
-                        <option value="6E">6E - 유로 FX 선물</option>
-                    </select>
-                    <svg class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                
+                <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <!-- Position Toggle -->
+                    <div class="bg-slate-100 p-1 rounded-xl flex font-bold text-sm w-full sm:w-auto">
+                        <button id="mode-long" onclick="setMode('LONG')" class="flex-1 px-4 py-2.5 rounded-lg shadow-sm bg-white text-red-600 transition-all">
+                            📈 롱 (매수)
+                        </button>
+                        <button id="mode-short" onclick="setMode('SHORT')" class="flex-1 px-4 py-2.5 rounded-lg text-slate-400 hover:text-slate-600 transition-all">
+                            📉 숏 (매도)
+                        </button>
+                    </div>
+
+                    <!-- Ticker Select -->
+                    <div class="relative w-full sm:w-auto">
+                        <select id="ticker-select" class="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-800 py-3 pl-4 pr-10 rounded-xl font-bold text-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="ES">ES - S&P 500</option>
+                            <option value="NQ">NQ - 나스닥 100</option>
+                            <option value="GC">GC - 골드 선물</option>
+                            <option value="6E">6E - 유로 FX</option>
+                            <option value="6J">6J - 엔화 선물</option>
+                        </select>
+                        <svg class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
                 </div>
             </div>
 
             <!-- Info Box -->
-            <div id="strategy-info-box" class="mt-6 p-4 rounded-2xl bg-blue-50 border border-blue-200 flex items-start gap-3 transition-colors duration-300">
-                <svg class="w-5 h-5 flex-shrink-0 mt-0.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div id="strategy-info-box" class="mt-6 p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3 transition-colors duration-300">
+                <div id="info-icon" class="mt-0.5">ℹ️</div>
                 <div>
-                    <h3 id="strategy-title" class="font-bold text-blue-800 text-sm mb-1">전략 핵심</h3>
-                    <p id="strategy-desc" class="text-slate-700 text-sm">설명</p>
-                    <p id="strategy-tip" class="text-slate-600 text-xs mt-2 font-medium bg-white/50 inline-block px-2 py-1 rounded">Tip</p>
+                    <h3 id="strategy-title" class="font-bold text-slate-800 text-sm mb-1">전략 로딩중...</h3>
+                    <p id="strategy-desc" class="text-slate-700 text-sm">...</p>
+                    <p id="strategy-tip" class="text-slate-600 text-xs mt-2 font-medium bg-white/50 inline-block px-2 py-1 rounded">...</p>
                 </div>
             </div>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <!-- Left Column -->
+            <!-- Left Column: Analysis -->
             <div class="lg:col-span-2 space-y-6">
                 
                 <!-- Checklist -->
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 transition-colors duration-500 h-full" id="checklist-card">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="font-bold text-lg flex items-center gap-2 text-slate-800">
-                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            진입 체크리스트
+                            ✅ 진입 체크리스트
                         </h2>
-                        <button onclick="resetAnalysis()" class="text-slate-400 p-2 hover:bg-slate-50 rounded-full">
+                        <button onclick="resetAnalysis()" class="text-slate-400 p-2 hover:bg-slate-50 rounded-full transition-colors" title="초기화">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                         </button>
                     </div>
 
                     <div class="space-y-6">
-                        <!-- 1. Trend -->
+                        <!-- 1. Trend Check -->
                         <div>
-                            <label class="text-sm font-semibold text-slate-600 block mb-2">1. 1시간봉 추세 (EMA 200)</label>
+                            <label id="label-trend" class="text-sm font-semibold text-slate-600 block mb-2">1. 1시간봉 추세 (EMA 200)</label>
                             <div class="grid grid-cols-2 gap-3">
-                                <button id="btn-bull" onclick="setTrend('bullish')" class="btn-select py-4 px-2 rounded-xl text-sm font-bold border bg-white border-slate-200 text-slate-400 flex flex-col items-center gap-1">
-                                    <span>📈 상승장 (매수)</span>
+                                <button id="btn-trend-ok" onclick="setTrend(true)" class="btn-select py-5 px-2 rounded-xl text-sm font-bold border bg-white border-slate-200 text-slate-400 flex flex-col items-center gap-1">
+                                    <span id="text-trend-ok">👍 진입 방향 일치</span>
                                 </button>
-                                <button id="btn-bear" onclick="setTrend('bearish')" class="btn-select py-4 px-2 rounded-xl text-sm font-bold border bg-white border-slate-200 text-slate-400 flex flex-col items-center gap-1">
-                                    <span>📉 하락장 (금지)</span>
+                                <button id="btn-trend-no" onclick="setTrend(false)" class="btn-select py-5 px-2 rounded-xl text-sm font-bold border bg-white border-slate-200 text-slate-400 flex flex-col items-center gap-1">
+                                    <span id="text-trend-no">👎 역추세 (위험)</span>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- 2. RSI -->
+                        <!-- 2. RSI Check -->
                         <div>
                             <label class="text-sm font-semibold text-slate-600 flex justify-between mb-2">
                                 <span>2. 15분봉 RSI (14)</span>
-                                <span id="rsi-badge" class="text-xs px-2 py-1 rounded font-bold bg-blue-50 text-blue-600">기준: 35 이하</span>
+                                <span id="rsi-badge" class="text-xs px-2 py-1 rounded font-bold bg-slate-100 text-slate-500">-</span>
                             </label>
                             <div class="relative">
-                                <input type="number" id="rsi-input" placeholder="RSI 값 입력" class="w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium bg-slate-50 focus:bg-white transition-all">
+                                <input type="number" id="rsi-input" placeholder="RSI 값 입력" class="w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-300 font-medium bg-slate-50 focus:bg-white transition-all tabular-nums text-lg">
                                 <div id="rsi-indicator" class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold"></div>
                             </div>
                         </div>
 
-                        <!-- 3. Band -->
+                        <!-- 3. Band Check -->
                         <div>
                             <label class="text-sm font-semibold text-slate-600 block mb-2">3. 15분봉 볼린저 밴드</label>
                             <div class="relative">
-                                <select id="band-select" class="w-full p-4 appearance-none border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-medium">
+                                <select id="band-select" class="w-full p-4 appearance-none border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-300 bg-white font-medium text-lg">
                                     <option value="middle">밴드 안쪽 (관망)</option>
-                                    <option value="lower">밴드 하단 터치 (매수 기회)</option>
-                                    <option value="upper">밴드 상단 터치 (매도 기회)</option>
+                                    <option value="good" id="opt-band-good">--</option>
+                                    <option value="bad" id="opt-band-bad">--</option>
                                 </select>
                                 <svg class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </div>
                         </div>
                     </div>
 
-                    <button id="btn-analyze" onclick="analyze()" disabled class="w-full mt-8 py-4 bg-slate-300 text-white font-bold rounded-2xl transition-all shadow-none flex justify-center items-center gap-2 cursor-not-allowed">
-                        AI 전략 분석 실행
+                    <button id="btn-analyze" onclick="analyze()" disabled class="w-full mt-8 py-5 bg-slate-300 text-white font-bold rounded-2xl transition-all shadow-none flex justify-center items-center gap-2 cursor-not-allowed text-lg">
+                        분석 시작
                     </button>
 
-                    <!-- Analysis Result -->
+                    <!-- Result Box -->
                     <div id="result-box" class="hidden mt-6 p-6 bg-slate-50 rounded-2xl border border-slate-200 fade-in">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-bold text-slate-800">분석 결과</h3>
-                            <span id="result-badge" class="px-4 py-2 rounded-xl text-sm font-bold bg-slate-600 text-white">결과 대기</span>
+                            <h3 class="font-bold text-slate-800">🎯 분석 결과</h3>
+                            <span id="result-badge" class="px-4 py-2 rounded-xl text-sm font-bold bg-slate-600 text-white">대기</span>
                         </div>
-                        <div id="result-reasons" class="space-y-2 bg-white p-4 rounded-xl border border-slate-100 text-sm text-slate-600 font-medium"></div>
-                    </div>
-                </div>
-
-                <!-- Image Upload -->
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                    <h2 class="font-bold text-lg mb-4 flex items-center gap-2 text-slate-800">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        차트 메모 (선택)
-                    </h2>
-                    <div id="upload-area" class="w-full h-32 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 relative overflow-hidden">
-                        <div class="flex flex-col items-center pointer-events-none">
-                            <svg class="w-6 h-6 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                            <span class="text-slate-400 text-sm">클릭해서 차트 업로드</span>
-                        </div>
-                        <input type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleImage(this)">
-                        <img id="preview-img" class="hidden absolute inset-0 w-full h-full object-contain bg-slate-900" />
-                        <button id="btn-remove-img" onclick="removeImage(event)" class="hidden absolute top-2 right-2 bg-black/60 text-white p-1 rounded-full z-10">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
+                        <div id="result-reasons" class="space-y-3 bg-white p-4 rounded-xl border border-slate-100 text-sm text-slate-600 font-medium"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column -->
+            <!-- Right Column: Calculator -->
             <div class="lg:col-span-1 space-y-6">
                 <!-- Calculator -->
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 sticky top-6 z-10">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 sticky top-6 z-10 transition-colors duration-500" id="calc-card">
                     <div class="flex items-center gap-3 mb-6">
-                        <div class="p-2.5 rounded-xl bg-slate-100 text-slate-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        <div class="p-2.5 rounded-xl bg-slate-100 text-slate-600" id="calc-icon-bg">
+                            <span id="calc-icon">🧮</span>
                         </div>
-                        <div><h2 class="font-bold text-lg text-slate-800">목표가 계산기</h2><p id="calc-subtitle" class="text-xs text-slate-400">맞춤형 세팅</p></div>
+                        <div>
+                            <h2 class="font-bold text-lg text-slate-800" id="calc-title">목표가 계산기</h2>
+                            <p id="calc-subtitle" class="text-xs text-slate-400">틱 단위 정밀 보정</p>
+                        </div>
                     </div>
                     
                     <div class="mb-6 relative">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
-                        <input type="number" id="price-input" placeholder="진입가 입력" class="w-full pl-8 p-4 border border-slate-200 rounded-xl font-mono text-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50">
+                        <input type="number" id="price-input" placeholder="현재가 입력" class="w-full pl-8 p-4 border border-slate-200 rounded-xl tabular-nums text-xl font-bold text-slate-800 focus:outline-none focus:ring-2 bg-slate-50 transition-all">
                     </div>
 
                     <div id="calc-result" class="hidden space-y-4 fade-in">
+                        <!-- TP -->
                         <div class="p-5 bg-emerald-50 rounded-2xl border border-emerald-100">
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-xs font-bold text-emerald-600 uppercase">익절 (TP)</span>
                                 <span id="tp-percent" class="bg-white/80 px-2 py-0.5 rounded text-[10px] font-bold text-emerald-600"></span>
                             </div>
-                            <div id="tp-price" class="text-3xl font-bold text-emerald-700 font-mono"></div>
-                            <div class="text-xs text-emerald-600 mt-2 font-medium">예상 수익률: <span id="roe-text" class="bg-emerald-200/50 px-1 rounded font-bold"></span></div>
+                            <div id="tp-price" class="text-3xl font-bold text-emerald-700 tabular-nums tracking-tight"></div>
+                            <div class="text-xs text-emerald-600 mt-2 font-medium">예상 수익: <span id="roe-text" class="bg-emerald-200/50 px-1 rounded font-bold"></span> (7.5배)</div>
                         </div>
+                        <!-- SL -->
                         <div class="p-5 bg-rose-50 rounded-2xl border border-rose-100">
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-xs font-bold text-rose-600 uppercase">손절 (SL)</span>
                                 <span id="sl-percent" class="bg-white/80 px-2 py-0.5 rounded text-[10px] font-bold text-rose-600"></span>
                             </div>
-                            <div id="sl-price" class="text-3xl font-bold text-rose-700 font-mono"></div>
+                            <div id="sl-price" class="text-3xl font-bold text-rose-700 tabular-nums tracking-tight"></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Guide -->
                 <div class="bg-slate-800 text-slate-300 p-6 rounded-3xl shadow-lg relative overflow-hidden">
-                    <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl"></div>
-                    <h3 id="guide-title" class="font-bold text-white mb-4 flex items-center gap-2 text-lg relative z-10">
-                        <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        매매 원칙
-                    </h3>
-                    <ul id="guide-list" class="space-y-4 text-sm relative z-10"></ul>
+                    <h3 class="font-bold text-white mb-4 text-lg z-10 relative">💡 매매 원칙</h3>
+                    <ul id="guide-list" class="space-y-3 text-sm relative z-10"></ul>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Logic Script -->
+    <!-- Script -->
     <script>
-        // --- DATA ---
+        // --- DATA (엔화 포함, 정밀 계산 적용) ---
         const STRATEGIES = {
-            ES: {
-                id: 'ES', name: 'S&P 500 선물',
-                rsiBuy: 35, rsiSell: 65, tp: 0.002, sl: 0.0015, leverage: 7.5,
-                desc: '정석 플레이. 1시간봉 추세 + 15분봉 눌림목.',
-                tip: 'RSI 35 이하 구간이 꿀통! 욕심내지 말고 0.2% 먹튀.',
-                color: 'blue'
-            },
-            NQ: {
-                id: 'NQ', name: '나스닥 100 선물',
-                rsiBuy: 25, rsiSell: 75, tp: 0.003, sl: 0.0025, leverage: 7.5,
-                desc: '야수의 심장. 변동성이 크므로 깊은 눌림 대기.',
-                tip: 'RSI 25 찍을 때까지 참으세요. 익절은 화끈하게 0.3%!',
-                color: 'violet'
-            },
-            GC: {
-                id: 'GC', name: '골드 선물',
-                rsiBuy: 25, rsiSell: 75, tp: 0.0025, sl: 0.002, leverage: 7.5,
-                desc: '속임수(휩소) 주의. 꼬리 달리는 것 보고 진입.',
-                tip: '양봉 확인 필수! 꼬리 확인 후 진입하세요.',
-                color: 'amber'
-            },
-            '6E': {
-                id: '6E', name: '유로 FX 선물',
-                rsiBuy: 30, rsiSell: 70, tp: 0.002, sl: 0.0015, leverage: 7.5,
-                desc: '모범생 차트. 지지와 저항을 정직하게 지키는 편.',
-                tip: '움직임이 느릴 수 있으니 인내심이 필요해요.',
-                color: 'indigo'
-            }
+            ES: { name: 'S&P 500', rsiLong: 35, rsiShort: 65, tp: 0.002, sl: 0.0015, color: 'red', tick: 0.25, prec: 2 },
+            NQ: { name: '나스닥 100', rsiLong: 25, rsiShort: 75, tp: 0.003, sl: 0.0025, color: 'violet', tick: 0.25, prec: 2 },
+            GC: { name: '골드 선물', rsiLong: 25, rsiShort: 75, tp: 0.0025, sl: 0.002, color: 'amber', tick: 0.1, prec: 1 },
+            '6E': { name: '유로 FX', rsiLong: 30, rsiShort: 70, tp: 0.002, sl: 0.0015, color: 'indigo', tick: 0.00005, prec: 5 },
+            '6J': { name: '엔화 선물', rsiLong: 30, rsiShort: 70, tp: 0.002, sl: 0.0015, color: 'pink', tick: 0.0000005, prec: 7 }
         };
 
         // --- STATE ---
-        let currentTicker = 'ES';
-        let h1Trend = null;
-        let rsiValue = '';
-        let bandPos = 'middle';
+        let mode = 'LONG'; 
+        let ticker = 'ES';
+        let trendOk = null;
+        let rsiVal = '';
+        let bandStatus = 'middle'; 
 
-        // --- ELEMENTS ---
-        const els = {
-            select: document.getElementById('ticker-select'),
-            infoBox: document.getElementById('strategy-info-box'),
-            title: document.getElementById('strategy-title'),
-            desc: document.getElementById('strategy-desc'),
-            tip: document.getElementById('strategy-tip'),
-            rsiInput: document.getElementById('rsi-input'),
-            rsiBadge: document.getElementById('rsi-badge'),
-            rsiIndicator: document.getElementById('rsi-indicator'),
-            bandSelect: document.getElementById('band-select'),
-            btnAnalyze: document.getElementById('btn-analyze'),
-            resultBox: document.getElementById('result-box'),
-            resultBadge: document.getElementById('result-badge'),
-            resultReasons: document.getElementById('result-reasons'),
-            priceInput: document.getElementById('price-input'),
-            calcResult: document.getElementById('calc-result'),
-            tpPrice: document.getElementById('tp-price'),
-            slPrice: document.getElementById('sl-price'),
-            tpPercent: document.getElementById('tp-percent'),
-            slPercent: document.getElementById('sl-percent'),
-            roeText: document.getElementById('roe-text'),
-            guideList: document.getElementById('guide-list'),
-            btnBull: document.getElementById('btn-bull'),
-            btnBear: document.getElementById('btn-bear')
-        };
-
-        // --- FUNCTIONS ---
+        const el = (id) => document.getElementById(id);
+        
         function init() {
-            updateUI();
-            els.select.addEventListener('change', (e) => {
-                currentTicker = e.target.value;
+            renderUI();
+            el('ticker-select').addEventListener('change', (e) => {
+                ticker = e.target.value;
                 resetAnalysis();
-                updateUI();
-                calculate();
+                renderUI();
+                calc();
             });
-            els.rsiInput.addEventListener('input', (e) => {
-                rsiValue = e.target.value;
+            el('rsi-input').addEventListener('input', (e) => {
+                rsiVal = e.target.value;
                 checkRSI();
-                checkButton();
+                checkBtn();
             });
-            els.bandSelect.addEventListener('change', (e) => {
-                bandPos = e.target.value;
+            el('band-select').addEventListener('change', (e) => {
+                bandStatus = e.target.value;
             });
-            els.priceInput.addEventListener('input', calculate);
+            el('price-input').addEventListener('input', calc);
         }
 
-        function updateUI() {
-            const cfg = STRATEGIES[currentTicker];
-            
-            // Colors
-            const colors = {
-                blue: 'bg-blue-50 border-blue-200 text-blue-800 text-blue-600',
-                violet: 'bg-violet-50 border-violet-200 text-violet-800 text-violet-600',
-                amber: 'bg-amber-50 border-amber-200 text-amber-800 text-amber-600',
-                indigo: 'bg-indigo-50 border-indigo-200 text-indigo-800 text-indigo-600'
-            };
-            const c = colors[cfg.color].split(' ');
+        function setMode(newMode) {
+            mode = newMode;
+            if (mode === 'LONG') {
+                el('mode-long').className = 'flex-1 px-4 py-2.5 rounded-lg shadow-sm bg-white text-red-600 transition-all';
+                el('mode-short').className = 'flex-1 px-4 py-2.5 rounded-lg text-slate-400 hover:text-slate-600 transition-all';
+            } else {
+                el('mode-short').className = 'flex-1 px-4 py-2.5 rounded-lg shadow-sm bg-white text-blue-600 transition-all';
+                el('mode-long').className = 'flex-1 px-4 py-2.5 rounded-lg text-slate-400 hover:text-slate-600 transition-all';
+            }
+            resetAnalysis();
+            renderUI();
+            calc();
+        }
 
-            els.infoBox.className = `mt-6 p-4 rounded-2xl flex items-start gap-3 transition-colors duration-300 ${c[0]} ${c[1]}`;
-            els.title.className = `font-bold text-sm mb-1 ${c[2]}`;
-            els.desc.innerText = cfg.desc;
-            els.tip.innerText = `Tip: ${cfg.tip}`;
+        function renderUI() {
+            const cfg = STRATEGIES[ticker];
+            const isLong = mode === 'LONG';
+            const themeColor = isLong ? 'red' : 'blue';
             
-            els.rsiBadge.innerText = `기준: ${cfg.rsiBuy} 이하`;
-            els.rsiBadge.className = `text-xs px-2 py-1 rounded font-bold ${c[0]} ${c[3]}`;
-            els.rsiInput.placeholder = `${cfg.rsiBuy} 이하 진입 추천`;
-            els.rsiInput.className = `w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 font-medium bg-slate-50 focus:bg-white transition-all focus:ring-${cfg.color}-500`;
+            const infoBoxClass = isLong 
+                ? 'mt-6 p-4 rounded-2xl flex items-start gap-3 transition-colors duration-300 bg-red-50 border border-red-100'
+                : 'mt-6 p-4 rounded-2xl flex items-start gap-3 transition-colors duration-300 bg-blue-50 border border-blue-100';
+            
+            el('strategy-info-box').className = infoBoxClass;
+            el('strategy-title').innerText = `${cfg.name} - ${isLong ? '매수(Long)' : '매도(Short)'} 전략`;
+            el('strategy-title').className = `font-bold text-sm mb-1 text-${themeColor}-700`;
+            
+            if (isLong) {
+                el('info-icon').innerText = '📈';
+                el('strategy-desc').innerText = '상승 추세에서 눌림목을 잡으세요.';
+                el('strategy-tip').innerText = `Tip: 틱 단위(${cfg.tick})로 정밀 보정됩니다.`;
+                
+                el('text-trend-ok').innerText = '📈 상승 추세 (EMA 200 위)';
+                el('text-trend-no').innerText = '📉 하락 추세 (진입 금지)';
+                
+                el('opt-band-good').innerText = '밴드 하단 터치 (매수 기회)';
+                el('opt-band-bad').innerText = '밴드 상단 터치 (매도 구간)';
+                
+                el('rsi-badge').innerText = `매수 기준: ${cfg.rsiLong} 이하`;
+                el('rsi-badge').className = `text-xs px-2 py-1 rounded font-bold bg-red-100 text-red-600`;
+                el('rsi-input').placeholder = `${cfg.rsiLong} 이하 추천`;
+            } else {
+                el('info-icon').innerText = '📉';
+                el('strategy-desc').innerText = '하락 추세에서 반등 시 매도하세요.';
+                el('strategy-tip').innerText = `Tip: 틱 단위(${cfg.tick})로 정밀 보정됩니다.`;
+                
+                el('text-trend-ok').innerText = '📉 하락 추세 (EMA 200 아래)';
+                el('text-trend-no').innerText = '📈 상승 추세 (진입 금지)';
+                
+                el('opt-band-good').innerText = '밴드 상단 터치 (매도 기회)';
+                el('opt-band-bad').innerText = '밴드 하단 터치 (청산 구간)';
+                
+                el('rsi-badge').innerText = `매도 기준: ${cfg.rsiShort} 이상`;
+                el('rsi-badge').className = `text-xs px-2 py-1 rounded font-bold bg-blue-100 text-blue-600`;
+                el('rsi-input').placeholder = `${cfg.rsiShort} 이상 추천`;
+            }
 
-            // Guide
-            els.guideList.innerHTML = `
-                <li class="flex gap-3 items-start"><span class="bg-slate-700 text-white w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold flex-shrink-0 mt-0.5">1</span><span>EMA 200 위 매수 (상승장 필수)</span></li>
-                <li class="flex gap-3 items-start"><span class="bg-slate-700 text-white w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold flex-shrink-0 mt-0.5">2</span><span>RSI <b class="text-emerald-400">${cfg.rsiBuy} 이하</b> + 볼린저 하단</span></li>
-                <li class="flex gap-3 items-start"><span class="bg-slate-700 text-white w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold flex-shrink-0 mt-0.5">3</span><span>${(cfg.tp * 100).toFixed(1)}% 수익시 즉시 익절</span></li>
+            el('calc-title').innerText = isLong ? '매수 목표가' : '매도 목표가';
+            el('calc-subtitle').innerText = `단위: ${cfg.tick} (${isLong ? '올림' : '내림'})`;
+            el('calc-icon').innerText = isLong ? '🐂' : '🐻';
+            el('calc-icon-bg').className = isLong ? 'p-2.5 rounded-xl bg-red-50' : 'p-2.5 rounded-xl bg-blue-50';
+
+            const trendText = isLong ? "EMA 200 위" : "EMA 200 아래";
+            const rsiText = isLong ? `RSI ${cfg.rsiLong} 이하` : `RSI ${cfg.rsiShort} 이상`;
+            const bandText = isLong ? "볼린저 하단" : "볼린저 상단";
+            
+            el('guide-list').innerHTML = `
+                <li class="flex gap-3 items-center"><span class="bg-slate-700 text-white w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold">1</span><span>${trendText} 확인</span></li>
+                <li class="flex gap-3 items-center"><span class="bg-slate-700 text-white w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold">2</span><span>${rsiText} + ${bandText}</span></li>
+                <li class="flex gap-3 items-center"><span class="bg-slate-700 text-white w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold">3</span><span>${(cfg.tp * 100).toFixed(2)}% 수익 시 칼익절</span></li>
             `;
         }
 
-        function setTrend(type) {
-            h1Trend = type;
-            const activeClass = 'bg-slate-800 border-slate-800 text-white ring-2 ring-slate-300 shadow-md transform scale-[1.02]';
-            const inactiveClass = 'bg-white border-slate-200 text-slate-400';
-
-            if (type === 'bullish') {
-                els.btnBull.className = `btn-select py-4 px-2 rounded-xl text-sm font-bold border flex flex-col items-center gap-1 bg-red-50 border-red-200 text-red-600 ring-2 ring-red-100`;
-                els.btnBear.className = `btn-select py-4 px-2 rounded-xl text-sm font-bold border flex flex-col items-center gap-1 bg-white border-slate-200 text-slate-400 opacity-50`;
+        function setTrend(isOk) {
+            trendOk = isOk;
+            const activeClass = 'btn-select py-5 px-2 rounded-xl text-sm font-bold border ring-2 shadow-md transform scale-[1.02]';
+            const inactiveClass = 'btn-select py-5 px-2 rounded-xl text-sm font-bold border bg-white border-slate-200 text-slate-400 opacity-60';
+            
+            if (isOk) {
+                const color = mode === 'LONG' ? 'red' : 'blue';
+                el('btn-trend-ok').className = `${activeClass} bg-${color}-50 border-${color}-200 text-${color}-600 ring-${color}-100`;
+                el('btn-trend-no').className = inactiveClass;
             } else {
-                els.btnBear.className = `btn-select py-4 px-2 rounded-xl text-sm font-bold border flex flex-col items-center gap-1 bg-blue-50 border-blue-200 text-blue-600 ring-2 ring-blue-100`;
-                els.btnBull.className = `btn-select py-4 px-2 rounded-xl text-sm font-bold border flex flex-col items-center gap-1 bg-white border-slate-200 text-slate-400 opacity-50`;
+                el('btn-trend-no').className = `${activeClass} bg-slate-100 border-slate-300 text-slate-600 ring-slate-200`;
+                el('btn-trend-ok').className = inactiveClass;
             }
-            checkButton();
+            checkBtn();
         }
 
         function checkRSI() {
-            const val = parseFloat(rsiValue);
-            const cfg = STRATEGIES[currentTicker];
-            if (isNaN(val)) {
-                els.rsiIndicator.innerText = '';
-                return;
-            }
-            if (val <= cfg.rsiBuy) {
-                els.rsiIndicator.innerHTML = '<span class="text-emerald-500 bg-emerald-50 px-2 py-1 rounded">🟢 좋음</span>';
-            } else if (val >= cfg.rsiSell) {
-                els.rsiIndicator.innerHTML = '<span class="text-rose-500 bg-rose-50 px-2 py-1 rounded">🔴 위험</span>';
-            } else {
-                els.rsiIndicator.innerText = '';
-            }
+            const val = parseFloat(rsiVal);
+            const cfg = STRATEGIES[ticker];
+            if (isNaN(val)) { el('rsi-indicator').innerText = ''; return; }
+            
+            const isGood = mode === 'LONG' ? val <= cfg.rsiLong : val >= cfg.rsiShort;
+            const isBad = mode === 'LONG' ? val >= 70 : val <= 30; 
+
+            if (isGood) el('rsi-indicator').innerHTML = '<span class="text-emerald-500 bg-emerald-50 px-2 py-1 rounded">🟢 진입 굿</span>';
+            else if (isBad) el('rsi-indicator').innerHTML = '<span class="text-rose-500 bg-rose-50 px-2 py-1 rounded">🔴 위험</span>';
+            else el('rsi-indicator').innerText = '';
         }
 
-        function checkButton() {
-            if (h1Trend && rsiValue) {
-                const cfg = STRATEGIES[currentTicker];
-                els.btnAnalyze.disabled = false;
-                els.btnAnalyze.className = `w-full mt-8 py-4 text-white font-bold rounded-2xl transition-all shadow-md flex justify-center items-center gap-2 hover:opacity-90 bg-${cfg.color}-600`;
+        function checkBtn() {
+            const theme = mode === 'LONG' ? 'red' : 'blue';
+            if (trendOk !== null && rsiVal) {
+                el('btn-analyze').disabled = false;
+                el('btn-analyze').className = `w-full mt-8 py-5 text-white font-bold rounded-2xl transition-all shadow-md flex justify-center items-center gap-2 hover:opacity-90 bg-${theme}-500 text-lg`;
             } else {
-                els.btnAnalyze.disabled = true;
-                els.btnAnalyze.className = `w-full mt-8 py-4 bg-slate-300 text-white font-bold rounded-2xl transition-all shadow-none flex justify-center items-center gap-2 cursor-not-allowed`;
+                el('btn-analyze').disabled = true;
+                el('btn-analyze').className = `w-full mt-8 py-5 bg-slate-300 text-white font-bold rounded-2xl transition-all shadow-none flex justify-center items-center gap-2 cursor-not-allowed text-lg`;
             }
         }
 
         function analyze() {
-            const cfg = STRATEGIES[currentTicker];
+            const cfg = STRATEGIES[ticker];
+            const rsi = parseFloat(rsiVal);
             let score = 0;
             let reasons = [];
-            let status = 'WAIT';
             
-            // Logic
-            if (h1Trend === 'bullish') {
+            if (trendOk) {
                 score += 30;
-                reasons.push('✅ 1시간봉 상승 추세 (EMA 200 위)');
+                reasons.push(mode === 'LONG' ? '✅ 상승 추세 확인 (Good)' : '✅ 하락 추세 확인 (Good)');
             } else {
-                score -= 50;
-                reasons.push('⚠️ 1시간봉 하락 추세 (매수 금지)');
+                score -= 100;
+                reasons.push('⛔️ 추세 역행입니다. 진입 금지.');
             }
 
-            const rsi = parseFloat(rsiValue);
-            if (rsi <= cfg.rsiBuy) {
+            const isRsiGood = mode === 'LONG' ? rsi <= cfg.rsiLong : rsi >= cfg.rsiShort;
+            if (isRsiGood) {
                 score += 40;
-                reasons.push(`✅ RSI 과매도 (${rsi}) - 기준 만족`);
-            } else if (rsi >= cfg.rsiSell) {
-                score -= 20;
-                reasons.push(`⚠️ RSI 과매수 (${rsi}) - 위험`);
+                reasons.push(`✅ RSI ${rsi} (기준 만족)`);
             } else {
-                reasons.push(`ℹ️ RSI 중립 (${rsi})`);
+                reasons.push(`ℹ️ RSI 중립/불만족`);
             }
 
-            if (bandPos === 'lower') {
+            if (bandStatus === 'good') {
                 score += 30;
-                reasons.push('✅ 볼린저 밴드 하단 터치');
-            } else if (bandPos === 'upper') {
+                reasons.push('✅ 볼린저 밴드 터치 (Good)');
+            } else if (bandStatus === 'bad') {
                 score -= 30;
-                reasons.push('⚠️ 볼린저 밴드 상단 터치');
+                reasons.push('⚠️ 밴드 반대편 터치 (위험)');
             }
 
-            if (h1Trend === 'bearish') status = 'NO_ENTRY';
-            else if (score >= 80) status = 'STRONG_BUY';
-            else if (score >= 50) status = 'BUY';
-            else status = 'WAIT';
-
-            // Render Result
-            els.resultBox.classList.remove('hidden');
-            let badgeClass = '';
-            let badgeText = '';
+            el('result-box').classList.remove('hidden');
+            let status = '';
+            let bg = '';
             
-            if (status === 'STRONG_BUY') {
-                badgeClass = 'bg-red-500 text-white';
-                badgeText = '🔥 강력 매수';
-            } else if (status === 'BUY') {
-                badgeClass = 'bg-orange-500 text-white';
-                badgeText = '✨ 매수 적합';
-            } else if (status === 'NO_ENTRY') {
-                badgeClass = 'bg-slate-600 text-white';
-                badgeText = '✋ 진입 금지';
+            if (score >= 80) { status = '🔥 강력 추천'; bg = 'bg-red-500'; }
+            else if (score >= 50) { status = '✨ 진입 적합'; bg = 'bg-orange-500'; }
+            else if (score < 0) { status = '✋ 진입 금지'; bg = 'bg-slate-600'; }
+            else { status = '⏳ 관망 필요'; bg = 'bg-yellow-400'; }
+            
+            el('result-badge').innerText = status;
+            el('result-badge').className = `px-4 py-2 rounded-xl text-sm font-bold text-white shadow-sm ${bg}`;
+            el('result-reasons').innerHTML = reasons.map(r => `<div>${r}</div>`).join('');
+        }
+
+        function calc() {
+            const price = parseFloat(el('price-input').value);
+            if (isNaN(price)) { el('calc-result').classList.add('hidden'); return; }
+            el('calc-result').classList.remove('hidden');
+            
+            const cfg = STRATEGIES[ticker];
+            const roe = (cfg.tp * 100 * 7.5).toFixed(2);
+            
+            let tpRaw, slRaw;
+            let tpPrice, slPrice;
+
+            if (mode === 'LONG') {
+                tpRaw = price * (1 + cfg.tp);
+                slRaw = price * (1 - cfg.sl);
+                
+                // Long: Round Up (Ceil)
+                const mult = Math.round(1 / cfg.tick); 
+                if (mult > 1) {
+                    tpPrice = Math.ceil(tpRaw / cfg.tick) * cfg.tick;
+                    slPrice = Math.ceil(slRaw / cfg.tick) * cfg.tick;
+                } else {
+                    tpPrice = Math.ceil(tpRaw / cfg.tick) * cfg.tick;
+                    slPrice = Math.ceil(slRaw / cfg.tick) * cfg.tick;
+                }
+
+                el('tp-percent').innerText = `+${(cfg.tp*100).toFixed(2)}%`;
+                el('sl-percent').innerText = `-${(cfg.sl*100).toFixed(2)}%`;
             } else {
-                badgeClass = 'bg-yellow-400 text-white';
-                badgeText = '⏳ 관망 필요';
+                tpRaw = price * (1 - cfg.tp);
+                slRaw = price * (1 + cfg.sl);
+
+                // Short: Round Down (Floor)
+                tpPrice = Math.floor(tpRaw / cfg.tick) * cfg.tick;
+                slPrice = Math.floor(slRaw / cfg.tick) * cfg.tick;
+
+                el('tp-percent').innerText = `-${(cfg.tp*100).toFixed(2)}%`;
+                el('sl-percent').innerText = `+${(cfg.sl*100).toFixed(2)}%`;
             }
 
-            els.resultBadge.className = `px-4 py-2 rounded-xl text-sm font-bold shadow-sm ${badgeClass}`;
-            els.resultBadge.innerText = badgeText;
-            
-            els.resultReasons.innerHTML = reasons.map(r => `<div class="flex items-start gap-2"><span>•</span><span>${r}</span></div>`).join('');
+            el('tp-price').innerText = `$${tpPrice.toFixed(cfg.prec)}`;
+            el('sl-price').innerText = `$${slPrice.toFixed(cfg.prec)}`;
+            el('roe-text').innerText = `+${roe}%`;
         }
 
         function resetAnalysis() {
-            h1Trend = null;
-            rsiValue = '';
-            bandPos = 'middle';
-            els.rsiInput.value = '';
-            els.bandSelect.value = 'middle';
-            els.resultBox.classList.add('hidden');
+            trendOk = null;
+            rsiVal = '';
+            bandStatus = 'middle';
+            el('rsi-input').value = '';
+            el('band-select').value = 'middle';
+            el('result-box').classList.add('hidden');
+            el('rsi-indicator').innerText = '';
             
-            els.btnBull.className = 'btn-select py-4 px-2 rounded-xl text-sm font-bold border bg-white border-slate-200 text-slate-400 flex flex-col items-center gap-1';
-            els.btnBear.className = 'btn-select py-4 px-2 rounded-xl text-sm font-bold border bg-white border-slate-200 text-slate-400 flex flex-col items-center gap-1';
-            els.rsiIndicator.innerText = '';
-            checkButton();
+            const inactive = 'btn-select py-5 px-2 rounded-xl text-sm font-bold border bg-white border-slate-200 text-slate-400 flex flex-col items-center gap-1';
+            el('btn-trend-ok').className = inactive;
+            el('btn-trend-no').className = inactive;
+            checkBtn();
         }
 
-        function calculate() {
-            const price = parseFloat(els.priceInput.value);
-            if (isNaN(price)) {
-                els.calcResult.classList.add('hidden');
-                return;
-            }
-            els.calcResult.classList.remove('hidden');
-            
-            const cfg = STRATEGIES[currentTicker];
-            const tp = price * (1 + cfg.tp);
-            const sl = price * (1 - cfg.sl);
-            const roe = (cfg.tp * 100 * cfg.leverage).toFixed(2);
-
-            els.tpPrice.innerText = `$${tp.toFixed(2)}`;
-            els.slPrice.innerText = `$${sl.toFixed(2)}`;
-            els.tpPercent.innerText = `+${(cfg.tp * 100).toFixed(2)}%`;
-            els.slPercent.innerText = `-${(cfg.sl * 100).toFixed(2)}%`;
-            els.roeText.innerText = `+${roe}%`;
-        }
-
-        function handleImage(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.getElementById('preview-img');
-                    img.src = e.target.result;
-                    img.classList.remove('hidden');
-                    document.getElementById('btn-remove-img').classList.remove('hidden');
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function removeImage(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            document.getElementById('preview-img').src = '';
-            document.getElementById('preview-img').classList.add('hidden');
-            document.getElementById('btn-remove-img').classList.add('hidden');
-            document.querySelector('input[type=file]').value = '';
-        }
-
-        // Run
         init();
     </script>
 </body>
