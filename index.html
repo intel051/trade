@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>선물 매매 통합 점검 대시보드</title>
-    <!-- 안정적인 Tailwind CSS CDN v3 사용 -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Pretendard 폰트 불러오기 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
@@ -14,63 +14,69 @@
             background-color: #f8fafc;
             color: #0f172a;
         }
-        .checked-line {
-            text-decoration: line-through;
-            color: #94a3b8;
+        /* 모바일 사파리 등에서 입력폼 터치 시 자동 줌인 방지 */
+        input, select {
+            font-size: 16px !important;
         }
-        /* 한국어 줄바꿈 가독성을 위한 유틸리티 */
-        .keep-all {
-            word-break: keep-all;
+        @media (min-width: 768px) {
+            input, select {
+                font-size: 14px !important;
+            }
         }
     </style>
 </head>
-<body class="p-3 sm:p-6 md:p-8 min-h-screen flex items-center justify-center">
+<body class="p-3 md:p-8 min-h-screen flex items-center justify-center bg-slate-50">
 
-    <div class="w-full max-w-5xl bg-white rounded-3xl p-5 sm:p-8 md:p-10 shadow-xl border border-slate-100">
+    <div class="w-full max-w-5xl bg-white rounded-3xl p-4 md:p-8 shadow-lg border border-slate-100">
         <!-- 헤더 -->
-        <header class="mb-6 md:mb-8 border-b border-slate-100 pb-5 md:pb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div class="keep-all">
-                <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">선물 매매 통합 점검 대시보드</h1>
-                <p class="text-xs sm:text-sm text-slate-500 mt-2 font-medium">실질 레버리지와 리스크 한도를 수학적으로 계산하여 감정 매매를 통제합니다.</p>
+        <header class="mb-6 border-b border-slate-100 pb-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-xl md:text-2xl font-black tracking-tight text-slate-900">선물 매매 통합 점검 대시보드</h1>
+                <p class="text-xs md:text-sm text-slate-500 mt-1 font-medium">실질 레버리지와 리스크 한도를 계산해 원칙 매매를 돕습니다.</p>
             </div>
             <!-- 전략 전환 탭 -->
-            <div class="flex space-x-1.5 bg-slate-100 p-1 rounded-xl w-full md:w-auto">
-                <button id="tab-day" onclick="switchStrategy('day')" class="flex-1 md:flex-none px-4 sm:px-5 py-2.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-lg bg-white text-slate-900 shadow-sm transition-all duration-200 cursor-pointer">
+            <div class="flex space-x-1 bg-slate-100 p-1 rounded-xl w-full md:w-auto">
+                <button id="tab-day" onclick="switchStrategy('day')" class="flex-1 md:flex-none px-4 py-2 text-xs md:text-sm font-bold rounded-lg bg-white text-slate-900 shadow-xs transition-all duration-200 cursor-pointer">
                     단타 (5분봉)
                 </button>
-                <button id="tab-swing" onclick="switchStrategy('swing')" class="flex-1 md:flex-none px-4 sm:px-5 py-2.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-900 transition-all duration-200 cursor-pointer">
+                <button id="tab-swing" onclick="switchStrategy('swing')" class="flex-1 md:flex-none px-4 py-2 text-xs md:text-sm font-bold rounded-lg text-slate-500 hover:text-slate-900 transition-all duration-200 cursor-pointer">
                     스윙 (1시간봉)
                 </button>
             </div>
         </header>
 
         <!-- 메인 콘텐츠 영역 -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             <!-- 왼쪽: 데이터 입력 및 실시간 계산 영역 (7칸) -->
-            <div class="lg:col-span-7 space-y-5 md:space-y-6">
+            <div class="lg:col-span-7 space-y-5">
                 
                 <!-- 1. 자금 및 자산 정보 입력 -->
-                <div class="bg-slate-50/50 p-5 sm:p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
-                    <h2 class="text-sm sm:text-base font-bold text-slate-800 flex items-center keep-all">
-                        <span class="w-1.5 h-4 bg-blue-600 rounded-full mr-2"></span>
-                        1. 기본 거래 정보 입력
+                <div class="bg-slate-50/60 p-4 md:p-5 rounded-2xl border border-slate-100/80 space-y-4">
+                    <h2 class="text-sm md:text-base font-bold text-slate-800 flex items-center">
+                        <span class="w-1 h-3.5 bg-blue-600 rounded-full mr-2"></span>
+                        1. 거래 기본 정보
                     </h2>
                     
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <!-- 총 예수금 -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1.5 keep-all">내 계좌 총 예수금 (USD)</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-semibold text-sm">$</span>
-                                <input type="number" id="input-balance" value="30000" oninput="calculate()" class="w-full pl-8 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-sm">
+                            <label class="block text-[11px] font-bold text-slate-400 mb-1">내 계좌 총 예수금 (USD)</label>
+                            <div class="relative flex items-center">
+                                <span class="absolute left-3 text-slate-400 font-semibold text-sm">$</span>
+                                <input type="number" id="input-balance" placeholder="예: 30000" oninput="calculate(); toggleClearBtn('input-balance', 'clear-balance')" class="w-full pl-7 pr-9 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 font-bold text-sm">
+                                <button id="clear-balance" onclick="clearInput('input-balance', 'clear-balance')" class="absolute right-2.5 text-slate-300 hover:text-slate-500 transition-colors hidden focus:outline-none cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
 
                         <!-- 자산 유형 -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1.5 keep-all">거래 종목 선택</label>
-                            <select id="select-asset" onchange="onAssetChange()" class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-sm cursor-pointer">
+                            <label class="block text-[11px] font-bold text-slate-400 mb-1">거래 종목 선택</label>
+                            <select id="select-asset" onchange="onAssetChange()" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 font-bold text-sm cursor-pointer">
                                 <option value="MES" selected>마이크로 S&P 500 (MES)</option>
                                 <option value="ES">S&P 500 (ES)</option>
                                 <option value="M6E">마이크로 유로FX (M6E)</option>
@@ -81,138 +87,170 @@
                 </div>
 
                 <!-- 2. 포지션 세부 계획 -->
-                <div class="bg-slate-50/50 p-5 sm:p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5">
-                        <h2 class="text-sm sm:text-base font-bold text-slate-800 flex items-center keep-all">
-                            <span class="w-1.5 h-4 bg-blue-600 rounded-full mr-2"></span>
+                <div class="bg-slate-50/60 p-4 md:p-5 rounded-2xl border border-slate-100/80 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-sm md:text-base font-bold text-slate-800 flex items-center">
+                            <span class="w-1 h-3.5 bg-blue-600 rounded-full mr-2"></span>
                             2. 진입 및 청산 설계
                         </h2>
-                        <button onclick="applyRecommendedPresets()" class="w-full sm:w-auto text-center text-xs bg-slate-200/80 hover:bg-slate-200 text-slate-700 font-bold px-3 py-2 sm:py-1.5 rounded-lg transition-colors cursor-pointer keep-all">
-                            추천 타이트 프리셋 적용
+                        <button onclick="applyRecommendedPresets()" class="text-[10px] md:text-xs bg-slate-200/70 hover:bg-slate-200 text-slate-700 font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">
+                            추천 손익폭 자동 기입
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                         <!-- 계약 수 -->
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1.5 keep-all">진입 계약 수</label>
-                            <input type="number" id="input-contracts" value="3" min="1" oninput="calculate()" class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold text-sm">
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="block text-[11px] font-bold text-slate-400 mb-1">진입 계약 수</label>
+                            <div class="relative flex items-center">
+                                <input type="number" id="input-contracts" min="1" placeholder="예: 3" oninput="calculate(); toggleClearBtn('input-contracts', 'clear-contracts')" class="w-full pl-3 pr-9 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 font-bold text-sm">
+                                <button id="clear-contracts" onclick="clearInput('input-contracts', 'clear-contracts')" class="absolute right-2.5 text-slate-300 hover:text-slate-500 transition-colors hidden focus:outline-none cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
 
                         <!-- 진입 가격 -->
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1.5 keep-all">예정 진입 가격</label>
-                            <input type="number" id="input-entry" value="5000" step="0.25" oninput="calculate()" class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold text-sm">
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="block text-[11px] font-bold text-slate-400 mb-1">진입 희망가</label>
+                            <div class="relative flex items-center">
+                                <input type="number" id="input-entry" placeholder="가격 입력" oninput="calculate(); toggleClearBtn('input-entry', 'clear-entry')" class="w-full pl-3 pr-9 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 font-bold text-sm">
+                                <button id="clear-entry" onclick="clearInput('input-entry', 'clear-entry')" class="absolute right-2.5 text-slate-300 hover:text-slate-500 transition-colors hidden focus:outline-none cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
 
                         <!-- 목표 익절가 -->
-                        <div>
-                            <label class="block text-xs font-bold mb-1.5 text-emerald-600 keep-all">목표 익절가</label>
-                            <input type="number" id="input-profit" value="5012" step="0.25" oninput="calculate()" class="w-full px-3 py-2.5 bg-white border border-emerald-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-emerald-600 font-bold text-sm">
+                        <div class="col-span-1">
+                            <label class="block text-[11px] font-bold text-emerald-600/80 mb-1">목표 익절가</label>
+                            <div class="relative flex items-center">
+                                <input type="number" id="input-profit" placeholder="가격 입력" oninput="calculate(); toggleClearBtn('input-profit', 'clear-profit')" class="w-full pl-3 pr-9 py-2 bg-white border border-emerald-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 text-emerald-600 font-bold text-sm">
+                                <button id="clear-profit" onclick="clearInput('input-profit', 'clear-profit')" class="absolute right-2.5 text-slate-300 hover:text-slate-500 transition-colors hidden focus:outline-none cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
 
                         <!-- 손절 가격 -->
-                        <div>
-                            <label class="block text-xs font-bold mb-1.5 text-rose-600 keep-all">예정 손절가</label>
-                            <input type="number" id="input-stop" value="4994" step="0.25" oninput="calculate()" class="w-full px-3 py-2.5 bg-white border border-rose-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 text-rose-600 font-bold text-sm">
+                        <div class="col-span-1">
+                            <label class="block text-[11px] font-bold text-rose-600/80 mb-1">예정 손절가</label>
+                            <div class="relative flex items-center">
+                                <input type="number" id="input-stop" placeholder="가격 입력" oninput="calculate(); toggleClearBtn('input-stop', 'clear-stop')" class="w-full pl-3 pr-9 py-2 bg-white border border-rose-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/10 focus:border-rose-500 text-rose-600 font-bold text-sm">
+                                <button id="clear-stop" onclick="clearInput('input-stop', 'clear-stop')" class="absolute right-2.5 text-slate-300 hover:text-slate-500 transition-colors hidden focus:outline-none cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 3. 실시간 연산 분석 결과 -->
-                <div class="bg-slate-900 text-white p-5 sm:p-6 rounded-3xl shadow-lg space-y-6">
-                    <h3 class="text-xs sm:text-sm font-bold text-slate-400 tracking-wider uppercase keep-all">실시간 포지션 리스크 분석</h3>
+                <div class="bg-slate-900 text-white p-5 rounded-2xl shadow-md space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold text-slate-400 tracking-wider uppercase">포지션 분석 리포트</h3>
+                        <span id="system-status-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400">정보 입력 대기</span>
+                    </div>
                     
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-2">
                         <!-- 총 포지션 가치 -->
-                        <div>
-                            <div class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 keep-all">총 포지션 가치</div>
-                            <div class="text-base sm:text-lg font-extrabold text-white" id="calc-position-value">$0.00</div>
+                        <div class="border-r border-slate-800/80 pr-2">
+                            <div class="text-[10px] text-slate-400 font-medium mb-0.5">총 포지션 가치</div>
+                            <div class="text-sm md:text-base font-extrabold text-white" id="calc-position-value">-</div>
                         </div>
 
                         <!-- 실질 레버리지 -->
-                        <div>
-                            <div class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 flex items-center keep-all">
+                        <div class="md:border-r border-slate-800/80 md:px-2">
+                            <div class="text-[10px] text-slate-400 font-medium mb-0.5 flex items-center flex-wrap gap-1">
                                 실질 레버리지
-                                <span id="leverage-badge" class="ml-1.5 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-black whitespace-nowrap"></span>
+                                <span id="leverage-badge" class="hidden px-1 rounded text-[9px] font-black"></span>
                             </div>
-                            <div class="text-base sm:text-lg font-extrabold text-white" id="calc-leverage">0.00배</div>
+                            <div class="text-sm md:text-base font-extrabold text-white" id="calc-leverage">-</div>
                         </div>
 
                         <!-- 예상 리스크 금액 -->
-                        <div>
-                            <div class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 flex items-center keep-all">
+                        <div class="border-r border-slate-800/80 pr-2 md:px-2">
+                            <div class="text-[10px] text-slate-400 font-medium mb-0.5 flex items-center flex-wrap gap-1">
                                 예상 손절 손실
-                                <span id="risk-badge" class="ml-1.5 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-black whitespace-nowrap"></span>
+                                <span id="risk-badge" class="hidden px-1 rounded text-[9px] font-black"></span>
                             </div>
-                            <div class="text-base sm:text-lg font-extrabold text-rose-400" id="calc-risk-amount">$0.00</div>
+                            <div class="text-sm md:text-base font-extrabold text-rose-400" id="calc-risk-amount">-</div>
                         </div>
 
                         <!-- 예상 손익비 -->
-                        <div>
-                            <div class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 keep-all">예상 손익비</div>
-                            <div class="text-base sm:text-lg font-extrabold text-emerald-400" id="calc-risk-reward">0.00 : 1</div>
+                        <div class="md:pl-2">
+                            <div class="text-[10px] text-slate-400 font-medium mb-0.5">예상 손익비</div>
+                            <div class="text-sm md:text-base font-extrabold text-emerald-400" id="calc-risk-reward">-</div>
                         </div>
                     </div>
                 </div>
 
             </div>
 
-            <!-- 오른쪽: 규칙 기반 시스템 검증 및 자율 체크리스트 (5칸) -->
-            <div class="lg:col-span-5 space-y-5 md:space-y-6">
+            <!-- 오른쪽: 지표별 진입 가이드 및 검증 영역 (5칸) -->
+            <div class="lg:col-span-5 space-y-5">
                 
-                <!-- 자율 원칙 점검 가이드라인 -->
-                <div class="bg-slate-50/50 p-5 sm:p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
-                    <div class="flex justify-between items-center pb-2 border-b border-slate-200/50">
-                        <h2 class="text-sm sm:text-base font-bold text-slate-800 flex items-center keep-all">
-                            <span class="w-1.5 h-4 bg-slate-800 rounded-full mr-2"></span>
-                            3. 타점 요건 시스템 확인
-                        </h2>
-                        <span id="system-status-badge" class="px-2 py-0.5 rounded text-[11px] sm:text-xs font-bold bg-slate-200 text-slate-600 whitespace-nowrap">진입 대기</span>
+                <!-- 지표별 상세 진입 기준 -->
+                <div class="bg-slate-50/60 p-4 md:p-5 rounded-2xl border border-slate-100/80 space-y-3.5">
+                    <h2 class="text-sm md:text-base font-bold text-slate-800 flex items-center">
+                        <span class="w-1 h-3.5 bg-blue-600 rounded-full mr-2"></span>
+                        지표별 진입 요건 가이드
+                    </h2>
+                    <div id="indicators-guide-container" class="space-y-2.5">
+                        <!-- JS로 단타 / 스윙 가이드 동적 교체 -->
                     </div>
+                </div>
 
-                    <div class="space-y-2 text-xs sm:text-sm text-slate-600 font-medium">
-                        <div class="flex justify-between items-center p-3 bg-white rounded-xl border border-slate-100 shadow-sm gap-2">
-                            <span class="keep-all">계좌 대비 총 리스크가 2% 이하인가?</span>
-                            <span id="chk-risk-under-2" class="font-extrabold text-slate-400 whitespace-nowrap">대기</span>
+                <!-- 시스템 검증 현황 -->
+                <div class="bg-slate-50/60 p-4 md:p-5 rounded-2xl border border-slate-100/80 space-y-4">
+                    <h2 class="text-sm md:text-base font-bold text-slate-800 flex items-center">
+                        <span class="w-1 h-3.5 bg-blue-600 rounded-full mr-2"></span>
+                        타점 조건 자동 검증
+                    </h2>
+
+                    <div class="space-y-2 text-xs md:text-sm text-slate-600 font-medium">
+                        <div class="flex justify-between items-center p-3 bg-white rounded-xl border border-slate-100 shadow-xs">
+                            <span class="text-xs">계좌 대비 리스크 2% 이하 여부</span>
+                            <span id="chk-risk-under-2" class="font-extrabold text-slate-400 text-xs">대기</span>
                         </div>
-                        <div class="flex justify-between items-center p-3 bg-white rounded-xl border border-slate-100 shadow-sm gap-2">
-                            <span class="keep-all">목표 레버리지 요건을 충족하는가?</span>
-                            <span id="chk-leverage-fit" class="font-extrabold text-slate-400 whitespace-nowrap">대기</span>
+                        <div class="flex justify-between items-center p-3 bg-white rounded-xl border border-slate-100 shadow-xs">
+                            <span class="text-xs">전략 권장 레버리지 충족 여부</span>
+                            <span id="chk-leverage-fit" class="font-extrabold text-slate-400 text-xs">대기</span>
                         </div>
-                        <div class="flex justify-between items-center p-3 bg-white rounded-xl border border-slate-100 shadow-sm gap-2">
-                            <span class="keep-all">보상비율(손익비)이 1:1.5 이상인가?</span>
-                            <span id="chk-rr-ratio" class="font-extrabold text-slate-400 whitespace-nowrap">대기</span>
+                        <div class="flex justify-between items-center p-3 bg-white rounded-xl border border-slate-100 shadow-xs">
+                            <span class="text-xs">목표 보상 비율 (손익비 1:1.5 이상)</span>
+                            <span id="chk-rr-ratio" class="font-extrabold text-slate-400 text-xs">대기</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- 진입 전 체크리스트 -->
-                <div class="bg-slate-50/50 p-5 sm:p-6 rounded-2xl border border-slate-100 shadow-sm">
-                    <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-200/50">
-                        <h2 class="text-sm sm:text-base font-bold text-slate-800 flex items-center keep-all">
-                            <span class="w-1.5 h-4 bg-slate-800 rounded-full mr-2"></span>
-                            4. 진입 직전 자율 서약
-                        </h2>
-                        <button onclick="resetChecklist()" class="text-xs text-blue-600 hover:text-blue-800 font-bold transition-colors cursor-pointer whitespace-nowrap">체크 초기화</button>
-                    </div>
-                    <div class="space-y-3" id="checklist-container">
-                        <label class="flex items-start p-3 sm:p-3.5 rounded-xl bg-white hover:bg-slate-100/30 cursor-pointer transition-all border border-slate-200/40 shadow-sm">
-                            <input type="checkbox" onchange="toggleCheck(this)" class="mt-1 mr-3 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer flex-shrink-0">
-                            <span class="text-xs sm:text-sm text-slate-600 font-semibold leading-relaxed keep-all">지금 자리가 본인이 수립한 진입 요건과 100% 일치합니까?</span>
-                        </label>
-                        <label class="flex items-start p-3 sm:p-3.5 rounded-xl bg-white hover:bg-slate-100/30 cursor-pointer transition-all border border-slate-200/40 shadow-sm">
-                            <input type="checkbox" onchange="toggleCheck(this)" class="mt-1 mr-3 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer flex-shrink-0">
-                            <span class="text-xs sm:text-sm text-slate-600 font-semibold leading-relaxed keep-all">30분 내 예정된 마크로 경제 지표 발표가 없습니까?</span>
-                        </label>
-                        <label class="flex items-start p-3 sm:p-3.5 rounded-xl bg-white hover:bg-slate-100/30 cursor-pointer transition-all border border-slate-200/40 shadow-sm">
-                            <input type="checkbox" onchange="toggleCheck(this)" class="mt-1 mr-3 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer flex-shrink-0">
-                            <span class="text-xs sm:text-sm text-slate-600 font-semibold leading-relaxed keep-all">손절 가격을 차트에 미리 대기 매도 설정해 두었습니까?</span>
-                        </label>
-                        <label class="flex items-start p-3 sm:p-3.5 rounded-xl bg-white hover:bg-slate-100/30 cursor-pointer transition-all border border-slate-200/40 shadow-sm">
-                            <input type="checkbox" onchange="toggleCheck(this)" class="mt-1 mr-3 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer flex-shrink-0">
-                            <span class="text-xs sm:text-sm text-slate-600 font-semibold leading-relaxed keep-all">손실을 만회하기 위한 충동적 추격 진입이 아닙니까?</span>
-                        </label>
+                <!-- 종목 가이드 가로형 테이블 -->
+                <div class="bg-slate-50/60 p-4 md:p-5 rounded-2xl border border-slate-100/80 overflow-hidden">
+                    <h2 class="text-sm md:text-base font-bold text-slate-800 mb-3 flex items-center">
+                        <span class="w-1 h-3.5 bg-blue-600 rounded-full mr-2"></span>
+                        종목별 가이드라인 요약
+                    </h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-[11px] md:text-xs min-w-[280px]">
+                            <thead class="bg-slate-200/50 text-slate-500 font-bold">
+                                <tr>
+                                    <th class="p-2 rounded-l-lg">종목</th>
+                                    <th class="p-2">추천 손절</th>
+                                    <th class="p-2">추천 익절</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-slate-700 font-semibold" id="table-body">
+                                <!-- JS로 렌더링 -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -221,7 +259,7 @@
         </div>
     </div>
 
-    <!-- 로직 스크립트 -->
+    <!-- 비즈니스 로직 스크립트 -->
     <script>
         let currentStrategy = 'day';
 
@@ -232,31 +270,102 @@
             '6E': { multiplier: 125000, defaultPrice: 1.0850, tickSize: 0.00005 }
         };
 
+        const guideContent = {
+            day: {
+                indicators: [
+                    { name: "EMA 20", rule: "강세 흐름 관찰. 주가가 EMA 20선 부근에 처음 안착하며 단기 조정을 보일 때 최우선 매수 진입 지점으로 봅니다." },
+                    { name: "EMA 50", rule: "추세 수호선. 20선이 일시 하회하더라도 50선 근처에서 지지를 얻고 강한 양봉이 완성될 때 추가 기회를 노립니다." },
+                    { name: "RSI 14", rule: "과매도·과매수 필터. 매수 시에는 40 이하에서 가격 반전이 일어날 때, 매도 시에는 60 이상에서 상승이 멈출 때 진입 신뢰도가 높습니다." },
+                    { name: "ATR 14", rule: "변동성 제어. 5분봉 ATR 기준 값의 1.5배 ~ 2배를 실시간 손절 폭으로 설정해 시장 노이즈에 견디게 만듭니다." }
+                ],
+                table: [
+                    { asset: "S&P 500 (ES)", stop: "5 ~ 7 pt (ATR 1.5~2배)", profit: "10 ~ 15 pt (손익비 1:2)" },
+                    { asset: "유로FX (6E)", stop: "20 ~ 25 틱 (ATR 1.5~2배)", profit: "40 ~ 50 틱 (손익비 1:2)" }
+                ]
+            },
+            swing: {
+                indicators: [
+                    { name: "EMA 20", rule: "추세 가속화 기준. 안정적인 스윙 파동 중 1시간봉 EMA 20선 지지를 거치며 추세 방향으로 가속 매수 기회를 잡습니다." },
+                    { name: "EMA 60", rule: "스윙 생명선. 가격이 EMA 60선을 이탈해 역배열로 전환되면 추세가 마감된 것으로 간주하고 포지션을 즉시 정리합니다." },
+                    { name: "RSI 14", rule: "추세 전환 필터. 매수는 RSI 45 이하 깊은 조정 국면에서 돌아설 때, 매도는 RSI 55 이상의 오버슈팅 국면에서 무너질 때를 노립니다." },
+                    { name: "ATR 14", rule: "오버나잇 버퍼. 밤낮 변동성 가파름을 완충하기 위해 1시간봉 ATR 값의 2배 수준으로 넉넉한 안정화 손절 기준을 잡습니다." }
+                ],
+                table: [
+                    { asset: "S&P 500 (ES)", stop: "20 ~ 25 pt (ATR 2배)", profit: "40 ~ 60 pt" },
+                    { asset: "유로FX (6E)", stop: "40 ~ 50 틱 (ATR 2배)", profit: "80 ~ 100 틱" }
+                ]
+            }
+        };
+
         function onAssetChange() {
+            // 자산 유형이 변경되면 입력칸들을 초기 비움 상태로 전환합니다
+            document.getElementById('input-entry').value = '';
+            document.getElementById('input-profit').value = '';
+            document.getElementById('input-stop').value = '';
+
+            // 각 클리어 버튼 비활성화
+            toggleClearBtn('input-entry', 'clear-entry');
+            toggleClearBtn('input-profit', 'clear-profit');
+            toggleClearBtn('input-stop', 'clear-stop');
+
             const asset = document.getElementById('select-asset').value;
             const spec = assetSpecs[asset];
             
-            document.getElementById('input-entry').value = spec.defaultPrice;
             document.getElementById('input-entry').step = spec.tickSize;
             document.getElementById('input-profit').step = spec.tickSize;
             document.getElementById('input-stop').step = spec.tickSize;
 
-            applyRecommendedPresets();
+            calculate();
         }
 
         function switchStrategy(type) {
             currentStrategy = type;
             const isDay = type === 'day';
             
-            document.getElementById('tab-day').className = `flex-1 md:flex-none px-4 sm:px-5 py-2.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-lg ${isDay ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'} transition-all duration-200 cursor-pointer`;
-            document.getElementById('tab-swing').className = `flex-1 md:flex-none px-4 sm:px-5 py-2.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-lg ${!isDay ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'} transition-all duration-200 cursor-pointer`;
+            document.getElementById('tab-day').className = `flex-1 md:flex-none px-4 py-2 text-xs md:text-sm font-bold rounded-lg ${isDay ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'} transition-all duration-200 cursor-pointer`;
+            document.getElementById('tab-swing').className = `flex-1 md:flex-none px-4 py-2 text-xs md:text-sm font-bold rounded-lg ${!isDay ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'} transition-all duration-200 cursor-pointer`;
 
-            applyRecommendedPresets();
+            renderStrategyGuides();
+            calculate();
+        }
+
+        function renderStrategyGuides() {
+            const data = guideContent[currentStrategy];
+            
+            // 지표 진입 요건 렌더링
+            const guideContainer = document.getElementById('indicators-guide-container');
+            guideContainer.innerHTML = data.indicators.map(ind => `
+                <div class="p-3 bg-white rounded-xl border border-slate-100 shadow-xs">
+                    <div class="text-xs font-bold text-slate-800 flex items-center mb-1">
+                        <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1.5"></span>
+                        ${ind.name} 진입
+                    </div>
+                    <p class="text-[11px] md:text-xs text-slate-500 font-medium leading-relaxed">${ind.rule}</p>
+                </div>
+            `).join('');
+
+            // 하단 테이블 요약 업데이트
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = data.table.map(row => `
+                <tr class="hover:bg-gray-100/30 transition-colors">
+                    <td class="p-2 text-slate-800 font-bold">${row.asset}</td>
+                    <td class="p-2 text-rose-500 font-bold">${row.stop}</td>
+                    <td class="p-2 text-emerald-500 font-bold">${row.profit}</td>
+                </tr>
+            `).join('');
         }
 
         function applyRecommendedPresets() {
             const asset = document.getElementById('select-asset').value;
-            const entryVal = parseFloat(document.getElementById('input-entry').value) || 0;
+            const spec = assetSpecs[asset];
+            
+            // 진입가 입력을 먼저 유도합니다
+            let entryVal = parseFloat(document.getElementById('input-entry').value);
+            if (isNaN(entryVal) || entryVal <= 0) {
+                entryVal = spec.defaultPrice;
+                document.getElementById('input-entry').value = entryVal;
+                toggleClearBtn('input-entry', 'clear-entry');
+            }
             
             let stopDiff = 0;
             let profitDiff = 0;
@@ -285,6 +394,9 @@
                 document.getElementById('input-profit').value = (entryVal + profitDiff).toFixed(5);
             }
 
+            toggleClearBtn('input-stop', 'clear-stop');
+            toggleClearBtn('input-profit', 'clear-profit');
+
             calculate();
         }
 
@@ -298,108 +410,133 @@
 
             const spec = assetSpecs[asset];
 
+            // 정보 입력 대기 상태 처리
+            if (balance <= 0 || contracts <= 0 || entry <= 0 || profit <= 0 || stop <= 0) {
+                document.getElementById('calc-position-value').innerText = '-';
+                document.getElementById('calc-leverage').innerText = '-';
+                document.getElementById('calc-risk-amount').innerText = '-';
+                document.getElementById('calc-risk-reward').innerText = '-';
+
+                document.getElementById('leverage-badge').className = 'hidden';
+                document.getElementById('risk-badge').className = 'hidden';
+
+                document.getElementById('chk-risk-under-2').className = 'font-extrabold text-slate-400 text-xs';
+                document.getElementById('chk-risk-under-2').innerText = '대기';
+
+                document.getElementById('chk-leverage-fit').className = 'font-extrabold text-slate-400 text-xs';
+                document.getElementById('chk-leverage-fit').innerText = '대기';
+
+                document.getElementById('chk-rr-ratio').className = 'font-extrabold text-slate-400 text-xs';
+                document.getElementById('chk-rr-ratio').innerText = '대기';
+
+                const statusBadge = document.getElementById('system-status-badge');
+                statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400';
+                statusBadge.innerText = '정보 입력 대기';
+                return;
+            }
+
             // 1. 총 포지션 가치 계산
             const positionValue = entry * spec.multiplier * contracts;
-            document.getElementById('calc-position-value').innerText = `$${positionValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('calc-position-value').innerText = `$${positionValue.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2})}`;
 
             // 2. 실질 레버리지 계산
-            const leverage = balance > 0 ? positionValue / balance : 0;
-            document.getElementById('calc-leverage').innerText = `${leverage.toFixed(2)}배`;
+            const leverage = positionValue / balance;
+            document.getElementById('calc-leverage').innerText = `${leverage.toFixed(1)}배`;
 
             const maxAllowedLeverage = currentStrategy === 'day' ? 5 : 2;
             const levBadge = document.getElementById('leverage-badge');
+            levBadge.classList.remove('hidden');
             
-            if (leverage === 0) {
-                levBadge.className = 'hidden';
-            } else if (leverage <= maxAllowedLeverage) {
-                levBadge.className = 'ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-black bg-emerald-500/20 text-emerald-600';
+            if (leverage <= maxAllowedLeverage) {
+                levBadge.className = 'px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-500/20 text-emerald-400';
                 levBadge.innerText = '안전';
-                document.getElementById('chk-leverage-fit').className = 'font-extrabold text-emerald-600';
+                document.getElementById('chk-leverage-fit').className = 'font-extrabold text-emerald-500 text-xs';
                 document.getElementById('chk-leverage-fit').innerText = '충족';
             } else if (leverage <= maxAllowedLeverage * 1.5) {
-                levBadge.className = 'ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-500/20 text-amber-600';
-                levBadge.innerText = '경계';
-                document.getElementById('chk-leverage-fit').className = 'font-extrabold text-amber-500';
+                levBadge.className = 'px-1.5 py-0.5 rounded text-[9px] font-black bg-amber-500/20 text-amber-400';
+                levBadge.innerText = '주의';
+                document.getElementById('chk-leverage-fit').className = 'font-extrabold text-amber-500 text-xs';
                 document.getElementById('chk-leverage-fit').innerText = '주의';
             } else {
-                levBadge.className = 'ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-black bg-rose-500/20 text-rose-600';
+                levBadge.className = 'px-1.5 py-0.5 rounded text-[9px] font-black bg-rose-500/20 text-rose-400';
                 levBadge.innerText = '위험';
-                document.getElementById('chk-leverage-fit').className = 'font-extrabold text-rose-600';
+                document.getElementById('chk-leverage-fit').className = 'font-extrabold text-rose-500 text-xs';
                 document.getElementById('chk-leverage-fit').innerText = '초과';
             }
 
-            // 3. 예상 리스크 금액 계산
+            // 3. 예상 리스크 금액 및 손절 비율
             const stopDifference = Math.abs(entry - stop);
             const totalRisk = stopDifference * spec.multiplier * contracts;
-            document.getElementById('calc-risk-amount').innerText = `$${totalRisk.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('calc-risk-amount').innerText = `$${totalRisk.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2})}`;
 
-            const riskRatio = balance > 0 ? (totalRisk / balance) * 100 : 0;
+            const riskRatio = (totalRisk / balance) * 100;
             const riskBadge = document.getElementById('risk-badge');
+            riskBadge.classList.remove('hidden');
 
-            if (riskRatio === 0) {
-                riskBadge.className = 'hidden';
-            } else if (riskRatio <= 2.0) {
-                riskBadge.className = 'ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-black bg-emerald-500/20 text-emerald-600';
+            if (riskRatio <= 2.0) {
+                riskBadge.className = 'px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-500/20 text-emerald-400';
                 riskBadge.innerText = `${riskRatio.toFixed(1)}% 안전`;
-                document.getElementById('chk-risk-under-2').className = 'font-extrabold text-emerald-600';
+                document.getElementById('chk-risk-under-2').className = 'font-extrabold text-emerald-500 text-xs';
                 document.getElementById('chk-risk-under-2').innerText = '안전';
             } else if (riskRatio <= 4.0) {
-                riskBadge.className = 'ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-500/20 text-amber-600';
+                riskBadge.className = 'px-1.5 py-0.5 rounded text-[9px] font-black bg-amber-500/20 text-amber-400';
                 riskBadge.innerText = `${riskRatio.toFixed(1)}% 경계`;
-                document.getElementById('chk-risk-under-2').className = 'font-extrabold text-amber-500';
+                document.getElementById('chk-risk-under-2').className = 'font-extrabold text-amber-500 text-xs';
                 document.getElementById('chk-risk-under-2').innerText = '경계';
             } else {
-                riskBadge.className = 'ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-black bg-rose-500/20 text-rose-600';
+                riskBadge.className = 'px-1.5 py-0.5 rounded text-[9px] font-black bg-rose-500/20 text-rose-400';
                 riskBadge.innerText = `${riskRatio.toFixed(1)}% 초과`;
-                document.getElementById('chk-risk-under-2').className = 'font-extrabold text-rose-600';
+                document.getElementById('chk-risk-under-2').className = 'font-extrabold text-rose-500 text-xs';
                 document.getElementById('chk-risk-under-2').innerText = '위험';
             }
 
-            // 4. 예상 손익비 계산
+            // 4. 손익비 계산
             const profitDifference = Math.abs(entry - profit);
             const riskRewardRatio = stopDifference > 0 ? (profitDifference / stopDifference) : 0;
             document.getElementById('calc-risk-reward').innerText = `1 : ${riskRewardRatio.toFixed(1)}`;
 
             if (riskRewardRatio >= 1.5) {
-                document.getElementById('chk-rr-ratio').className = 'font-extrabold text-emerald-600';
+                document.getElementById('chk-rr-ratio').className = 'font-extrabold text-emerald-500 text-xs';
                 document.getElementById('chk-rr-ratio').innerText = '합격';
             } else {
-                document.getElementById('chk-rr-ratio').className = 'font-extrabold text-rose-600';
+                document.getElementById('chk-rr-ratio').className = 'font-extrabold text-rose-500 text-xs';
                 document.getElementById('chk-rr-ratio').innerText = '불합격';
             }
 
+            // 종합 승인 판정
             const statusBadge = document.getElementById('system-status-badge');
             if (leverage <= maxAllowedLeverage && riskRatio <= 2.0 && riskRewardRatio >= 1.5) {
-                statusBadge.className = 'px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-700';
+                statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700';
                 statusBadge.innerText = '승인 완료';
             } else if (leverage > maxAllowedLeverage * 1.5 || riskRatio > 4.0 || riskRewardRatio < 1.0) {
-                statusBadge.className = 'px-2 py-0.5 rounded text-xs font-bold bg-rose-100 text-rose-700';
+                statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700';
                 statusBadge.innerText = '진입 금지';
             } else {
-                statusBadge.className = 'px-2 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-700';
-                statusBadge.innerText = '보수적 타진';
+                statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700';
+                statusBadge.innerText = '보수적 검토';
             }
         }
 
-        function toggleCheck(checkbox) {
-            const textSpan = checkbox.nextElementSibling;
-            if (checkbox.checked) {
-                textSpan.classList.add('checked-line');
+        // 특정 입력폼 초기화 기능 및 버튼 가시성 설정
+        function toggleClearBtn(inputId, btnId) {
+            const input = document.getElementById(inputId);
+            const btn = document.getElementById(btnId);
+            if (input.value) {
+                btn.classList.remove('hidden');
             } else {
-                textSpan.classList.remove('checked-line');
+                btn.classList.add('hidden');
             }
         }
 
-        function resetChecklist() {
-            const checkboxes = document.querySelectorAll('#checklist-container input[type="checkbox"]');
-            checkboxes.forEach(cb => {
-                cb.checked = false;
-                cb.nextElementSibling.classList.remove('checked-line');
-            });
+        function clearInput(inputId, btnId) {
+            const input = document.getElementById(inputId);
+            input.value = '';
+            toggleClearBtn(inputId, btnId);
+            calculate();
         }
 
-        // 초기 실행 지연 로드 방지
-        onAssetChange();
+        // 구동 준비 및 가이드 첫 렌더링
+        renderStrategyGuides();
     </script>
 </body>
 </html>
