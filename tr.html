@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1020" />
+  <meta name="description" content="NQ / 6E / Gold 선물 데이트레이딩 전 체크리스트" />
+  <title>Pre-Trade Flight Deck — NQ · 6E · Gold</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070a13;
+      --bg-2: #0b1020;
+      --panel: rgba(18, 24, 41, 0.72);
+      --panel-strong: rgba(22, 29, 49, 0.92);
+      --line: rgba(255,255,255,.09);
+      --line-strong: rgba(255,255,255,.15);
+      --text: #f5f7fb;
+      --muted: #97a2b8;
+      --muted-2: #6f7b93;
+      --good: #56d6a0;
+      --warn: #f1c75b;
+      --bad: #ff6b7d;
+      --blue: #7ca8ff;
+      --violet: #a88bff;
+      --cyan: #65d9e8;
+      --shadow: 0 20px 60px rgba(0,0,0,.34);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --max: 1280px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(1100px 600px at 8% -5%, rgba(124,168,255,.13), transparent 60%),
+        radial-gradient(900px 500px at 92% 0%, rgba(168,139,255,.12), transparent 58%),
+        radial-gradient(900px 600px at 65% 100%, rgba(86,214,160,.06), transparent 60%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+      font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      letter-spacing: -.01em;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: "";
+      position: fixed; inset: 0; pointer-events: none; z-index: -1;
+      background-image: linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: linear-gradient(to bottom, black, transparent 75%);
+    }
+
+    button, input { font: inherit; }
+    button { color: inherit; }
+
+    .shell { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+
+    header {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: blur(22px) saturate(150%);
+      -webkit-backdrop-filter: blur(22px) saturate(150%);
+      background: rgba(7,10,19,.70);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+
+    .nav {
+      min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 18px;
+    }
+    .brand { display:flex; align-items:center; gap: 11px; font-weight: 750; }
+    .brand-mark {
+      width: 32px; height: 32px; border-radius: 11px; display:grid; place-items:center;
+      background: linear-gradient(135deg, rgba(124,168,255,.28), rgba(168,139,255,.25));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: inset 0 0 18px rgba(124,168,255,.12), 0 8px 24px rgba(0,0,0,.22);
+      font-size: 14px;
+    }
+    .nav-meta { display:flex; align-items:center; gap: 8px; flex-wrap: wrap; justify-content:flex-end; }
+    .pill { display:inline-flex; align-items:center; gap:7px; padding: 7px 10px; border-radius: 999px; color: var(--muted); background: rgba(255,255,255,.045); border:1px solid var(--line); font-size:12px; }
+    .dot { width: 7px; height:7px; border-radius:50%; background: var(--good); box-shadow: 0 0 0 4px rgba(86,214,160,.08); }
+
+    .hero { padding: 58px 0 34px; display:grid; grid-template-columns: 1.15fr .85fr; gap: 26px; align-items: end; }
+    .eyebrow { color: var(--blue); font-size: 13px; font-weight: 700; letter-spacing:.08em; text-transform: uppercase; margin-bottom: 12px; }
+    h1 { font-size: clamp(38px, 5vw, 72px); line-height:.96; margin:0 0 18px; letter-spacing:-.055em; max-width: 800px; }
+    .hero p { margin:0; color: var(--muted); font-size: 16px; line-height: 1.72; max-width: 740px; }
+    .hero-card { padding: 20px; border-radius: var(--radius-xl); background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.035)); border:1px solid var(--line); box-shadow: var(--shadow); }
+    .hero-card-top { display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:18px; }
+    .hero-card .label { color: var(--muted); font-size:12px; }
+    .score { font-size: 48px; line-height:1; font-weight:800; letter-spacing:-.06em; }
+    .score small { font-size: 16px; color:var(--muted); font-weight:600; letter-spacing:0; }
+    .progress { height: 8px; background: rgba(255,255,255,.06); border-radius:999px; overflow:hidden; margin: 15px 0 12px; }
+    .progress > div { height:100%; width:0%; background: linear-gradient(90deg, var(--blue), var(--violet)); border-radius:inherit; transition: width .35s ease; }
+    .score-msg { color:var(--muted); font-size:13px; line-height:1.5; }
+
+    .section { margin: 30px 0; }
+    .section-head { display:flex; align-items:end; justify-content:space-between; gap:16px; margin-bottom:14px; }
+    .section-head h2 { margin:0; font-size:22px; letter-spacing:-.03em; }
+    .section-head p { margin:0; color:var(--muted); font-size:13px; }
+
+    .tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+    .tab { border:1px solid var(--line); background:rgba(255,255,255,.04); color:var(--muted); border-radius:999px; padding:10px 14px; cursor:pointer; transition: .2s ease; }
+    .tab:hover { border-color:var(--line-strong); color:var(--text); transform:translateY(-1px); }
+    .tab.active { color:var(--text); background:rgba(124,168,255,.13); border-color:rgba(124,168,255,.35); box-shadow: 0 0 0 1px rgba(124,168,255,.05) inset; }
+
+    .strategy-grid { display:grid; grid-template-columns: 1.15fr .85fr; gap:14px; }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-lg); box-shadow:var(--shadow); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+    .strategy-main { padding:22px; }
+    .instrument-head { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; margin-bottom:20px; }
+    .instrument-title { display:flex; gap:13px; align-items:center; }
+    .symbol { width:44px; height:44px; border-radius:14px; display:grid; place-items:center; font-weight:800; font-size:12px; border:1px solid var(--line); background: rgba(255,255,255,.05); }
+    .instrument-title h3 { margin:0 0 4px; font-size:20px; }
+    .instrument-title span { color:var(--muted); font-size:12px; }
+    .target-box { text-align:right; }
+    .target-box .big { font-size:24px; font-weight:800; letter-spacing:-.04em; }
+    .target-box .cap { color:var(--muted); font-size:11px; }
+
+    .rule-rows { display:grid; gap:10px; }
+    .rule { display:grid; grid-template-columns: 110px 1fr; gap:12px; padding:13px 14px; border-radius:14px; background:rgba(255,255,255,.035); border:1px solid rgba(255,255,255,.06); }
+    .rule .k { color:var(--muted); font-size:12px; }
+    .rule .v { font-weight:650; font-size:14px; line-height:1.5; }
+
+    .side-stack { display:grid; gap:14px; }
+    .mini { padding:20px; }
+    .mini h4 { margin:0 0 12px; font-size:14px; }
+    .checkline { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.055); }
+    .checkline:last-child { border-bottom:0; }
+    .checkline input { margin-top:2px; accent-color:var(--blue); width:16px; height:16px; }
+    .checkline label { font-size:13px; line-height:1.5; color:#dfe5ef; cursor:pointer; }
+    .checkline small { display:block; margin-top:2px; color:var(--muted-2); }
+    .danger { border-color: rgba(255,107,125,.18); background:linear-gradient(180deg, rgba(255,107,125,.06), rgba(255,255,255,.025)); }
+    .danger h4 { color:#ff9aa7; }
+
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .check-card { padding:20px; }
+    .check-title { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; }
+    .check-title h3 { margin:0; font-size:16px; }
+    .badge { font-size:11px; padding:6px 8px; border-radius:999px; color:var(--muted); background:rgba(255,255,255,.05); border:1px solid var(--line); }
+    .form-grid { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; }
+    .field { display:flex; flex-direction:column; gap:7px; }
+    .field label { color:var(--muted); font-size:11px; }
+    .field input { width:100%; padding:11px 12px; border-radius:12px; border:1px solid var(--line); background:rgba(0,0,0,.16); color:var(--text); outline:none; }
+    .field input:focus { border-color:rgba(124,168,255,.55); box-shadow:0 0 0 3px rgba(124,168,255,.08); }
+    .calc-result { margin-top:12px; padding:14px; border-radius:14px; background:rgba(124,168,255,.07); border:1px solid rgba(124,168,255,.16); }
+    .calc-result strong { font-size:22px; letter-spacing:-.04em; }
+    .calc-result span { display:block; color:var(--muted); font-size:11px; margin-top:3px; }
+
+    .routine { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+    .step { min-height:132px; padding:16px; border:1px solid var(--line); border-radius:16px; background:rgba(255,255,255,.035); position:relative; overflow:hidden; }
+    .step::after { content:""; position:absolute; width:100px; height:100px; right:-45px; bottom:-45px; border-radius:50%; background:rgba(124,168,255,.08); filter:blur(12px); }
+    .num { color:var(--blue); font-size:11px; font-weight:800; letter-spacing:.1em; }
+    .step h4 { margin:9px 0 6px; font-size:15px; }
+    .step p { margin:0; color:var(--muted); font-size:12px; line-height:1.55; }
+
+    .journal { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    textarea { width:100%; min-height:145px; resize:vertical; border-radius:14px; padding:14px; background:rgba(0,0,0,.16); color:var(--text); border:1px solid var(--line); outline:none; font-family:inherit; }
+    textarea:focus { border-color:rgba(124,168,255,.55); box-shadow:0 0 0 3px rgba(124,168,255,.08); }
+    .footer-actions { display:flex; gap:9px; flex-wrap:wrap; margin-top:10px; }
+    .btn { cursor:pointer; border:1px solid var(--line); background:rgba(255,255,255,.045); color:var(--text); border-radius:11px; padding:10px 13px; transition:.2s ease; }
+    .btn:hover { transform:translateY(-1px); border-color:var(--line-strong); }
+    .btn.primary { background:rgba(124,168,255,.13); border-color:rgba(124,168,255,.32); }
+    .btn.ghost { color:var(--muted); }
+
+    .note { color:var(--muted-2); font-size:11px; line-height:1.65; margin-top:10px; }
+    footer { padding:34px 0 50px; color:var(--muted-2); font-size:11px; line-height:1.7; }
+
+    .hidden { display:none !important; }
+    @media (max-width: 980px) {
+      .hero, .strategy-grid, .journal { grid-template-columns:1fr; }
+      .routine { grid-template-columns:repeat(2,1fr); }
+    }
+    @media (max-width: 700px) {
+      .shell { width:min(var(--max), calc(100% - 20px)); }
+      .hero { padding-top:36px; }
+      h1 { font-size:43px; }
+      .two-col { grid-template-columns:1fr; }
+      .routine { grid-template-columns:1fr; }
+      .rule { grid-template-columns:88px 1fr; }
+      .nav-meta .pill:nth-child(n+2) { display:none; }
+      .instrument-head { flex-direction:column; }
+      .target-box { text-align:left; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior:auto !important; transition:none !important; animation:none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="shell nav">
+      <div class="brand"><div class="brand-mark">PF</div><div>Pre-Trade Flight Deck</div></div>
+      <div class="nav-meta">
+        <span class="pill"><span class="dot"></span> LOCAL · 저장됨</span>
+        <span class="pill">NQ · 6E · GC</span>
+        <span class="pill">5M Entry / 15M Bias</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Futures Day Trading · Pre-flight System</div>
+        <h1>진입하기 전에<br>한 번만 확인.</h1>
+        <p>15분 시장환경 → 5분 진입구조 → 손절/익절 → 거래금지 조건을 순서대로 확인하고, 체크가 끝난 뒤에만 주문한다.</p>
+      </div>
+      <div class="hero-card">
+        <div class="hero-card-top"><div><div class="label">PRE-TRADE READINESS</div><div class="score" id="scoreText">0<small>/10</small></div></div><div class="badge" id="scoreBadge">준비 전</div></div>
+        <div class="progress"><div id="scoreBar"></div></div>
+        <div class="score-msg" id="scoreMsg">아래 체크리스트를 채우면 현재 셋업의 준비도를 계산합니다.</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div><h2>상품별 전술</h2><p>같은 지표를 쓰되, 시장 구조에 맞춰 진입 논리를 분리합니다.</p></div></div>
+      <div class="tabs" role="tablist" aria-label="상품 선택">
+        <button class="tab active" data-inst="nq">NQ · Nasdaq 100</button>
+        <button class="tab" data-inst="6e">6E · Euro FX</button>
+        <button class="tab" data-inst="gc">GC · Gold</button>
+      </div>
+
+      <div id="panel-nq" class="strategy-grid">
+        <div class="card strategy-main">
+          <div class="instrument-head"><div class="instrument-title"><div class="symbol">NQ</div><div><h3>추세 + 눌림목</h3><span>15M 방향 / 5M 실행</span></div></div><div class="target-box"><div class="big">+0.20~0.30%</div><div class="cap">목표 익절 범위</div></div></div>
+          <div class="rule-rows">
+            <div class="rule"><div class="k">시장환경</div><div class="v">15M EMA20/50 정렬 + 가격의 VWAP 위/아래를 먼저 확인.</div></div>
+            <div class="rule"><div class="k">롱 조건</div><div class="v">상승 환경 → 5M에서 VWAP 또는 EMA20까지 정상 눌림 → 재상승 확인 후 진입.</div></div>
+            <div class="rule"><div class="k">숏 조건</div><div class="v">하락 환경 → 5M에서 VWAP 또는 EMA20까지 반등 → 재하락 확인 후 진입.</div></div>
+            <div class="rule"><div class="k">손절</div><div class="v">대략 목표폭의 40~60% 수준을 시작점으로 두고, 실제로는 최근 스윙 무효화 기준을 우선.</div></div>
+            <div class="rule"><div class="k">패스</div><div class="v">VWAP 주변 왕복 / EMA20·50 수렴 / 5M 몸통이 계속 짧은 횡보.</div></div>
+          </div>
+        </div>
+        <div class="side-stack">
+          <div class="card mini"><h4>ENTRY TRIGGER</h4><div class="checkline"><input class="score-check" id="nq1" type="checkbox"><label for="nq1">15M 추세가 명확하다<small>EMA20/50 + VWAP 위치가 같은 방향</small></label></div><div class="checkline"><input class="score-check" id="nq2" type="checkbox"><label for="nq2">5M 눌림이 정상적이다<small>과도한 급락/급등이 아닌 정상 조정</small></label></div><div class="checkline"><input class="score-check" id="nq3" type="checkbox"><label for="nq3">리테스트가 확인됐다<small>VWAP/EMA/이전 돌파점이 실제로 반응</small></label></div></div>
+          <div class="card mini danger"><h4>NO TRADE</h4><div class="checkline"><input class="ban-check" id="nq4" type="checkbox"><label for="nq4">VWAP 근처에서 계속 왕복한다</label></div><div class="checkline"><input class="ban-check" id="nq5" type="checkbox"><label for="nq5">SL 위치가 애매하다</label></div></div>
+        </div>
+      </div>
+
+      <div id="panel-6e" class="strategy-grid hidden">
+        <div class="card strategy-main">
+          <div class="instrument-head"><div class="instrument-title"><div class="symbol">6E</div><div><h3>레인지 + 돌파 확인</h3><span>평균회귀 / 리테스트</span></div></div><div class="target-box"><div class="big">+0.10%</div><div class="cap">목표 익절 범위</div></div></div>
+          <div class="rule-rows">
+            <div class="rule"><div class="k">기본 구조</div><div class="v">15M에서 고점·저점 범위가 눈에 보이는지 먼저 체크.</div></div>
+            <div class="rule"><div class="k">페이크</div><div class="v">레인지 상·하단 살짝 이탈 → 다시 레인지 안으로 복귀하면 반대방향을 검토.</div></div>
+            <div class="rule"><div class="k">진짜 돌파</div><div class="v">15M 돌파 → 5M 눌림 → 돌파선 재지지/재저항 확인 후 추세 방향 진입.</div></div>
+            <div class="rule"><div class="k">손절</div><div class="v">대략 목표폭의 50% 안팎부터 시작하되, 레인지/리테스트 무효화 지점을 우선.</div></div>
+            <div class="rule"><div class="k">패스</div><div class="v">고저점이 계속 흐려지거나, 주요 이벤트 직전처럼 변동성 구조가 비정상적인 경우.</div></div>
+          </div>
+        </div>
+        <div class="side-stack">
+          <div class="card mini"><h4>ENTRY TRIGGER</h4><div class="checkline"><input class="score-check" id="e1" type="checkbox"><label for="e1">레인지가 명확하다<small>상단·하단이 최소 한 번 이상 반응</small></label></div><div class="checkline"><input class="score-check" id="e2" type="checkbox"><label for="e2">페이크/돌파 유형이 구분됐다<small>안쪽 복귀인지, 진짜 돌파인지 판단</small></label></div><div class="checkline"><input class="score-check" id="e3" type="checkbox"><label for="e3">5M 리테스트가 있다<small>추격 진입을 하지 않는다</small></label></div></div>
+          <div class="card mini danger"><h4>NO TRADE</h4><div class="checkline"><input class="ban-check" id="e4" type="checkbox"><label for="e4">발표 직전이라 변동성이 불확실하다</label></div><div class="checkline"><input class="ban-check" id="e5" type="checkbox"><label for="e5">상·하단 모두 의미가 흐리다</label></div></div>
+        </div>
+      </div>
+
+      <div id="panel-gc" class="strategy-grid hidden">
+        <div class="card strategy-main">
+          <div class="instrument-head"><div class="instrument-title"><div class="symbol">GC</div><div><h3>강한 돌파 + 되돌림</h3><span>모멘텀 확인 후 실행</span></div></div><div class="target-box"><div class="big">+0.10~0.20%</div><div class="cap">목표 익절 범위</div></div></div>
+          <div class="rule-rows">
+            <div class="rule"><div class="k">핵심</div><div class="v">강한 움직임을 먼저 기다리고, 돌파 직후 추격보다 돌파선/VWAP/EMA 재테스트를 우선.</div></div>
+            <div class="rule"><div class="k">롱 조건</div><div class="v">저항 돌파 → 5M 눌림 → 돌파선 또는 VWAP 지지 확인 → 재상승 진입.</div></div>
+            <div class="rule"><div class="k">숏 조건</div><div class="v">지지 이탈 → 5M 반등 → 이탈선/VWAP 저항 확인 → 재하락 진입.</div></div>
+            <div class="rule"><div class="k">손절</div><div class="v">고정 틱수보다 최근 구조가 무효화되는 지점을 우선하고, 목표폭과 손익비가 맞지 않으면 패스.</div></div>
+            <div class="rule"><div class="k">패스</div><div class="v">장대봉 연속 발생, 긴 꼬리 반복, 이벤트 직후 방향이 아직 정리되지 않은 상태.</div></div>
+          </div>
+        </div>
+        <div class="side-stack">
+          <div class="card mini"><h4>ENTRY TRIGGER</h4><div class="checkline"><input class="score-check" id="g1" type="checkbox"><label for="g1">돌파가 충분히 강하다<small>단순 한 틱 이탈보다 구조적 움직임</small></label></div><div class="checkline"><input class="score-check" id="g2" type="checkbox"><label for="g2">되돌림이 있다<small>돌파봉 추격 대신 재테스트를 기다림</small></label></div><div class="checkline"><input class="score-check" id="g3" type="checkbox"><label for="g3">구조적 SL이 명확하다<small>꼬리 한두 개에 손절되지 않는 위치</small></label></div></div>
+          <div class="card mini danger"><h4>NO TRADE</h4><div class="checkline"><input class="ban-check" id="g4" type="checkbox"><label for="g4">긴 꼬리가 양방향으로 계속 나온다</label></div><div class="checkline"><input class="ban-check" id="g5" type="checkbox"><label for="g5">추격 진입만 가능한 상태다</label></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div><h2>1분 프리플라이트</h2><p>거래를 시작하기 전에 아래 다섯 단계만 통과합니다.</p></div></div>
+      <div class="routine">
+        <div class="step"><div class="num">01 · CONTEXT</div><h4>15M 방향</h4><p>추세인지 레인지인지 한 문장으로 정의.</p></div>
+        <div class="step"><div class="num">02 · LOCATION</div><h4>가격 위치</h4><p>VWAP / EMA20 / 이전 고저점과의 관계 확인.</p></div>
+        <div class="step"><div class="num">03 · TRIGGER</div><h4>5M 트리거</h4><p>돌파·눌림·리테스트 중 어떤 구조인지 결정.</p></div>
+        <div class="step"><div class="num">04 · RISK</div><h4>SL / TP</h4><p>손절 위치가 먼저 정해졌는지 확인.</p></div>
+        <div class="step"><div class="num">05 · INVALIDATION</div><h4>무효화</h4><p>무엇이 일어나면 즉시 틀렸다고 인정할지 정함.</p></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="two-col">
+        <div class="card check-card">
+          <div class="check-title"><h3>공통 진입 체크</h3><span class="badge">필수</span></div>
+          <div class="checkline"><input class="score-check" data-common="1" id="c1" type="checkbox"><label for="c1">오늘 거래 상품과 방향을 한 문장으로 설명할 수 있다</label></div>
+          <div class="checkline"><input class="score-check" data-common="1" id="c2" type="checkbox"><label for="c2">진입 가격보다 먼저 손절 위치를 정했다</label></div>
+          <div class="checkline"><input class="score-check" data-common="1" id="c3" type="checkbox"><label for="c3">목표 익절까지의 공간이 충분하다</label></div>
+          <div class="checkline"><input class="score-check" data-common="1" id="c4" type="checkbox"><label for="c4">추격 진입이 아니라 구조적 확인 후 진입이다</label></div>
+          <div class="checkline"><input class="score-check" data-common="1" id="c5" type="checkbox"><label for="c5">연속 손절 후 복구 매매를 하려는 상태가 아니다</label></div>
+          <div class="checkline"><input class="score-check" data-common="1" id="c6" type="checkbox"><label for="c6">수수료·슬리피지까지 감안해도 손익비가 유지된다</label></div>
+          <div class="checkline"><input class="score-check" data-common="1" id="c7" type="checkbox"><label for="c7">오늘의 최대 손실 한도를 넘기지 않는다</label></div>
+        </div>
+
+        <div class="card check-card">
+          <div class="check-title"><h3>리스크 계산기</h3><span class="badge">포지션 사이즈</span></div>
+          <div class="form-grid">
+            <div class="field"><label>계좌 잔고</label><input id="balance" inputmode="decimal" type="number" value="10000000"></div>
+            <div class="field"><label>1회 리스크 (%)</label><input id="riskPct" inputmode="decimal" type="number" step="0.1" value="0.5"></div>
+            <div class="field"><label>계약 1개 손절 예상손실</label><input id="lossPerContract" inputmode="decimal" type="number" value="0"></div>
+            <div class="field"><label>거래 가능 계약수</label><input id="contracts" inputmode="decimal" type="number" value="1"></div>
+          </div>
+          <div class="calc-result"><strong id="riskAmount">₩50,000</strong><span>권장 최대 손실액 · 현재 계약수의 예상 손실: <b id="estLoss">₩0</b></span></div>
+          <div class="note">계약 1개 손절손실을 입력하면 현재 계약수가 허용 리스크를 초과하는지 바로 확인할 수 있습니다. 실제 계약가치·수수료·슬리피지는 별도로 반영하세요.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div><h2>거래 전 한 줄 기록</h2><p>판단을 기록하고, 거래 후 결과와 비교하세요. 브라우저에 자동 저장됩니다.</p></div></div>
+      <div class="journal">
+        <div class="card check-card"><div class="check-title"><h3>오늘의 시나리오</h3><span class="badge">BEFORE</span></div><textarea id="beforeNote" placeholder="예: NQ 상승 환경. 15M VWAP 위. 5M 첫 눌림에서 EMA20 지지 확인 시 롱. 이전 저점 이탈이면 무효."></textarea></div>
+        <div class="card check-card"><div class="check-title"><h3>거래 후 리뷰</h3><span class="badge">AFTER</span></div><textarea id="afterNote" placeholder="예: 계획대로 진입했는가? 추격이었는가? SL/TP가 합리적이었는가?"></textarea></div>
+      </div>
+      <div class="footer-actions"><button class="btn primary" id="saveBtn">저장</button><button class="btn ghost" id="clearBtn">오늘 기록 초기화</button></div>
+    </section>
+
+    <footer>이 페이지는 거래 전 사고과정을 표준화하기 위한 개인용 체크 도구입니다. 전략의 유효성은 실제 거래 전에 충분한 백테스트·리플레이·모의매매로 확인하세요.</footer>
+  </main>
+
+  <script>
+    const stateKey = 'pretrade-flightdeck-v1';
+    const tabs = [...document.querySelectorAll('.tab')];
+    const panels = [...document.querySelectorAll('[id^="panel-"]')];
+
+    function setInstrument(inst){
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.inst === inst));
+      panels.forEach(p => p.classList.toggle('hidden', p.id !== `panel-${inst}`));
+      localStorage.setItem('activeInstrument', inst); updateReadiness();
+    }
+    tabs.forEach(t => t.addEventListener('click', () => setInstrument(t.dataset.inst)));
+
+    const scoreChecks = [...document.querySelectorAll('.score-check')];
+    const badChecks = [...document.querySelectorAll('.ban-check')];
+    const scoreText = document.getElementById('scoreText');
+    const scoreBar = document.getElementById('scoreBar');
+    const scoreBadge = document.getElementById('scoreBadge');
+    const scoreMsg = document.getElementById('scoreMsg');
+
+    function updateReadiness(){
+      const active = localStorage.getItem('activeInstrument') || 'nq';
+      const activePanel = document.getElementById(`panel-${active}`);
+      const activeChecks = activePanel ? [...activePanel.querySelectorAll('.score-check')] : [];
+      const commonChecks = [...document.querySelectorAll('.score-check[data-common="1"]')];
+      const relevant = [...commonChecks, ...activeChecks];
+      const unique = [...new Map(relevant.map(x => [x.id, x])).values()];
+      const positive = unique.filter(x => x.checked).length;
+      const total = 10;
+      const activeBans = activePanel ? [...activePanel.querySelectorAll('.ban-check')] : [];
+      const bad = activeBans.filter(x => x.checked).length;
+      const effective = Math.max(0, positive - bad * 2);
+      const pct = Math.round((Math.min(effective, total) / total) * 100);
+      scoreText.innerHTML = `${Math.min(effective, total)}<small>/10</small>`;
+      scoreBar.style.width = `${Math.min(pct,100)}%`;
+      if(bad){ scoreBadge.textContent = '거래 보류'; scoreMsg.textContent = '선택한 상품의 거래금지 조건이 체크되어 있습니다. 셋업을 무효화하거나 기다리세요.'; }
+      else if(effective >= 8){ scoreBadge.textContent = '진입 준비'; scoreMsg.textContent = '핵심 조건이 충분히 갖춰졌습니다. SL 위치와 손익비를 마지막으로 확인하세요.'; }
+      else if(effective >= 5){ scoreBadge.textContent = '관찰'; scoreMsg.textContent = '일부 조건이 확인됐습니다. 트리거가 더 선명해질 때까지 기다리세요.'; }
+      else { scoreBadge.textContent = '준비 전'; scoreMsg.textContent = '아직 판단 근거가 부족합니다. 15M → 위치 → 5M 순서로 다시 확인하세요.'; }
+    }
+    [...scoreChecks, ...badChecks].forEach(x => x.addEventListener('change', () => { updateReadiness(); saveState(); }));
+
+    const balance = document.getElementById('balance');
+    const riskPct = document.getElementById('riskPct');
+    const lossPerContract = document.getElementById('lossPerContract');
+    const contracts = document.getElementById('contracts');
+    const riskAmount = document.getElementById('riskAmount');
+    const estLoss = document.getElementById('estLoss');
+    const money = n => new Intl.NumberFormat('ko-KR', { style:'currency', currency:'KRW', maximumFractionDigits:0 }).format(Math.max(0, n || 0));
+    function calcRisk(){
+      const r = (Number(balance.value)||0) * (Number(riskPct.value)||0) / 100;
+      const e = (Number(lossPerContract.value)||0) * (Number(contracts.value)||0);
+      riskAmount.textContent = money(r);
+      estLoss.textContent = money(e);
+      estLoss.parentElement.style.color = e > r && r > 0 ? 'var(--bad)' : 'inherit';
+      saveState();
+    }
+    [balance,riskPct,lossPerContract,contracts].forEach(x => x.addEventListener('input', calcRisk));
+
+    const beforeNote = document.getElementById('beforeNote');
+    const afterNote = document.getElementById('afterNote');
+    function saveState(){
+      const checks = {}; [...scoreChecks,...badChecks].forEach(x => checks[x.id] = x.checked);
+      const data = { checks, balance:balance.value, riskPct:riskPct.value, lossPerContract:lossPerContract.value, contracts:contracts.value, before:beforeNote.value, after:afterNote.value, date:new Date().toISOString().slice(0,10), activeInstrument:localStorage.getItem('activeInstrument') || 'nq' };
+      localStorage.setItem(stateKey, JSON.stringify(data));
+    }
+    function loadState(){
+      try{
+        const data = JSON.parse(localStorage.getItem(stateKey) || '{}');
+        if(data.checks){ Object.entries(data.checks).forEach(([id,val]) => { const el=document.getElementById(id); if(el) el.checked=!!val; }); }
+        if(data.balance!=null) balance.value=data.balance;
+        if(data.riskPct!=null) riskPct.value=data.riskPct;
+        if(data.lossPerContract!=null) lossPerContract.value=data.lossPerContract;
+        if(data.contracts!=null) contracts.value=data.contracts;
+        if(data.before!=null) beforeNote.value=data.before;
+        if(data.after!=null) afterNote.value=data.after;
+        if(data.date && data.date !== new Date().toISOString().slice(0,10)) { beforeNote.value=''; afterNote.value=''; }
+        setInstrument(data.activeInstrument || 'nq');
+      }catch(e){ setInstrument('nq'); }
+      updateReadiness(); calcRisk();
+    }
+    document.getElementById('saveBtn').addEventListener('click', () => { saveState(); const btn=document.getElementById('saveBtn'); const old=btn.textContent; btn.textContent='저장됨 ✓'; setTimeout(()=>btn.textContent=old, 1200); });
+    document.getElementById('clearBtn').addEventListener('click', () => { if(confirm('오늘 체크와 메모를 모두 초기화할까요?')){ localStorage.removeItem(stateKey); location.reload(); }});
+    [beforeNote, afterNote].forEach(x => x.addEventListener('input', saveState));
+
+    loadState();
+  </script>
+</body>
+</html>
